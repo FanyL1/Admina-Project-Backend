@@ -4,7 +4,8 @@ import { validate } from '../utils/validations/validate.js';
 import {registerSchema} from '../utils/validations/schemas/mainSchem.js'
 import { string } from 'zod';
 
-
+// Este este enpoint es para desarrollo no esta disponible la 
+// opcion de crear roles en el producto final
 const createRole = async (req, res) => {
     try {
 

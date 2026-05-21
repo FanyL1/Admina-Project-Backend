@@ -6,7 +6,7 @@ import { string } from 'zod';
 
 const salt = 10;
 
-const createUser = async (req, res) => {
+const singUp = async (req, res) => {
     try {
         //Validacion de campos con el esquema
         const validation = await validate(registerSchema, req.body);        
@@ -61,6 +61,12 @@ const createUser = async (req, res) => {
     }
 };
 
+// const login = async(req,res)=>{
+//     Logica para loguear al usuario, Validar credenciales y generar el token.
+//     colocarle timpo de vida al token - 30 mins - pero evitar que cierre sesion si el usuario 
+//     activo, puedes utilizar el metodo que quieras.
+// } 
 export default {
-    createUser
+    singUp
+    //login
 };
