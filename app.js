@@ -1,22 +1,68 @@
+//Para el server
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+//Para la documentacion
+import swaggerUi from 'swagger-ui-express';
+import OpenApiValidator from 'express-openapi-validator';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+//Rutas
+import apiRoutes from './src/routes/index.js';
+
+// Obtener el directorio actual para que funcione import
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const app = express();
+
 
 dotenv.config();
+//Middlesware basicos
 
-const app = express();
-const PORT = process.env.PORT;
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-app.use(cors());
-app.use(express.json());
 app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.get('/api/', (req, res) => {
-  res.json({ message: 'Backend funcionando correctamente' });
+
+// Leer el archivo openapi.json
+const openApiPath = path.join(__dirname, 'openapi.json');
+const apiSpec = JSON.parse(fs.readFileSync(openApiPath, 'utf8'));
+
+// Mostrar la interfaz gráfica de Swagger en /api-docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(apiSpec));
+
+//Validador de opneapi (se ejecuta antes de las rutas)
+app.use(
+  OpenApiValidator.middleware({
+    apiSpec: openApiPath,        // Ruta al archivo openapi.json
+    validateRequests: true,      // Validar peticiones entrantes
+    validateResponses: false,  
+    ignorePaths: /^\/(favicon\.ico|api-docs|api$)/, 
+  })
+);
+
+app.use('/api', apiRoutes);
+
+app.use((err, req, res, next) => {
+  if (err.status === 400) {
+    return res.status(400).json({
+      error: 'Error de validación',
+      message: err.message,
+      details: err.errors || []
+    });
+  }
+  
+  console.error(err);
+  res.status(500).json({ error: 'Error interno del servidor' });
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}/api/`);
-});
-
+export default app;

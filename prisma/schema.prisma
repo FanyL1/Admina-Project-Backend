@@ -16,9 +16,9 @@ datasource db {
 // --- SCHEMA: AUTH ---
 
 model Role {
-  id     String  @id @default(uuid()) @db.Uuid
-  name   String? @db.VarChar
-  status String? @db.VarChar
+  id     String  @id  @default(uuid()) @db.Uuid
+  name   String @unique @db.VarChar
+  status String @default("active") @db.VarChar
   users  User[] 
 
   @@map("role")
@@ -26,18 +26,18 @@ model Role {
 }
 
 model User {
-  id         String    @id @default(uuid()) @db.Uuid
-  dni        Int?
-  name       String?   @db.VarChar
-  lastname   String?   @db.VarChar
-  rol_id     String?   @db.Uuid
-  email      String?   @db.VarChar
-  pass       String?   @db.VarChar
-  created_at DateTime? @db.Timestamp(6)
-  updated_at DateTime?  @updatedAt @db.Timestamp(6)
-  status     String?    @db.VarChar
+  id         String   @id  @default(uuid()) @db.Uuid
+  dni        String   @unique @db.VarChar(9)
+  name       String   @db.VarChar
+  lastname   String   @db.VarChar
+  rol_id     String   @db.Uuid
+  email      String   @unique @db.VarChar
+  pass       String   @db.VarChar
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @updatedAt @db.Timestamp(6)
+  status     String    @default("active") @db.VarChar
 
-  role     Role?     @relation(fields: [rol_id], references: [id])
+  role     Role     @relation(fields: [rol_id], references: [id])
   requests Request[]
   logs     Log[]
 
@@ -49,8 +49,8 @@ model User {
 
 model Carrera {
   id       String    @id @default(uuid()) @db.Uuid
-  name     String?   @db.VarChar
-  status   String?   @db.VarChar
+  name     String   @unique @db.VarChar
+  status   String   @default("active") @db.VarChar
   requests Request[]
 
   @@map("carrera")
@@ -59,10 +59,10 @@ model Carrera {
 
 model Category {
   id         String    @id @default(uuid()) @db.Uuid
-  name       String?   @db.VarChar
-  created_at DateTime? @db.Timestamp(6)
-  updated_at DateTime? @db.Timestamp(6)
-  status     String?   @db.VarChar
+  name       String   @unique @db.VarChar
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @db.Timestamp(6)
+  status     String   @default("active") @db.VarChar
   requests   Request[]
 
   @@map("category")
@@ -71,11 +71,11 @@ model Category {
 
 model TypeProcedure {
   id           String    @id @default(uuid()) @db.Uuid
-  name         String?   @db.VarChar
-  requirements Json? 
-  created_at   DateTime? @db.Timestamp(6)
-  updated_at   DateTime? @db.Timestamp(6)
-  status       String?   @db.VarChar
+  name         String   @unique @db.VarChar
+  requirements Json 
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+  updated_at   DateTime @db.Timestamp(6)
+  status       String   @default("active") @db.VarChar
   requests     Request[]
 
   @@map("type_procedure")
@@ -84,20 +84,20 @@ model TypeProcedure {
 
 model Request {
   id           String    @id @default(uuid()) @db.Uuid
-  user_id      String?   @db.Uuid
-  createByname String    @db.VarChar
-  category_id  String?   @db.Uuid
-  type_id      String?   @db.Uuid
-  carrera_id   String?   @db.Uuid
+  user_id      String    @db.Uuid
+  createByname String   @db.VarChar
+  category_id  String   @db.Uuid
+  type_id      String   @db.Uuid
+  carrera_id   String   @db.Uuid
   observation  String?   @db.Text
-  created_at   DateTime? @default(now()) @db.Timestamp(6)
-  updated_at   DateTime? @updatedAt @db.Timestamp(6)
-  status       String?   @db.VarChar
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+  updated_at   DateTime @updatedAt @db.Timestamp(6)
+  status       String    @default("Enviado") @db.VarChar
 
-  user      User?          @relation(fields: [user_id], references: [id])
-  category  Category?      @relation(fields: [category_id], references: [id])
-  type      TypeProcedure? @relation(fields: [type_id], references: [id])
-  carrera   Carrera?       @relation(fields: [carrera_id], references: [id])
+  user      User          @relation(fields: [user_id], references: [id])
+  category  Category      @relation(fields: [category_id], references: [id])
+  type      TypeProcedure @relation(fields: [type_id], references: [id])
+  carrera   Carrera       @relation(fields: [carrera_id], references: [id])
   documents Document[]
   logs      Log[]
 
@@ -107,16 +107,16 @@ model Request {
 
 model Document {
   id                String    @id @default(uuid()) @db.Uuid
-  request_id        String?   @db.Uuid
-  name_requeriments String?   @db.VarChar
-  name_file         String?   @db.VarChar
-  router_file       String?   @db.VarChar
+  request_id        String   @db.Uuid
+  name_requeriments String   @db.VarChar
+  name_file         String   @db.VarChar
+  router_file       String   @db.VarChar
   size_bytes        BigInt?
-  created_at        DateTime? @db.Timestamp(6)
-  updated_at        DateTime? @db.Timestamp(6)
-  status            String?   @db.VarChar
+  created_at        DateTime @default(now()) @db.Timestamp(6)
+  updated_at        DateTime @db.Timestamp(6)
+  status            String   @db.VarChar
 
-  request Request? @relation(fields: [request_id], references: [id])
+  request Request @relation(fields: [request_id], references: [id])
 
   @@map("documents")
   @@schema("core")
@@ -126,13 +126,13 @@ model Document {
 
 model Log {
   id         String    @id @default(uuid()) @db.Uuid
-  date       DateTime? @default(now()) @db.Timestamp(6)
-  user_id    String?   @db.Uuid
-  action     String?   @db.VarChar
-  request_id String?   @db.Uuid
+  date       DateTime @default(now()) @db.Timestamp(6)
+  user_id    String   @db.Uuid
+  action     String   @db.VarChar
+  request_id String   @db.Uuid
 
-  user    User?    @relation(fields: [user_id], references: [id])
-  request Request? @relation(fields: [request_id], references: [id])
+  user    User    @relation(fields: [user_id], references: [id])
+  request Request @relation(fields: [request_id], references: [id])
 
   @@map("logs")
   @@schema("audit")

@@ -1,0 +1,67 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API",
+    "version": "1.0.0",
+    "description": "API-docs Admina Projects"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:2560",
+      "description": "Servidor local"
+    }
+  ],
+  
+  "paths": {
+    "/api/signup": {
+      "post": {
+        "summary": "Registrar un nuevo usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name","lastname","dni", "email", "pass"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "lastname": { "type": "string" },
+                  "dni": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "pass": { "type": "string", "minLength": 8 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Usuario registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      }
+    },
+    "/api/role": {
+      "post": {
+        "summary": "Registrar un nuevo Rol (DESARROLLO)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rol registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      }
+    }
+  }
+}
