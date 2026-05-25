@@ -1,8 +1,8 @@
 import prisma from '../config/prisma.js';
 import bcryptjs from 'bcryptjs';
+import { createToken, tokenExpirationSeconds } from '../utils/token.js';
 import { validate } from '../utils/validations/validate.js';
-import {registerSchema} from '../utils/validations/schemas/mainSchem.js'
-import { string } from 'zod';
+import { loginSchema, registerSchema } from '../utils/validations/schemas/mainSchem.js';
 
 const salt = 10;
 
@@ -61,12 +61,57 @@ const singUp = async (req, res) => {
     }
 };
 
-// const login = async(req,res)=>{
-//     Logica para loguear al usuario, Validar credenciales y generar el token.
-//     colocarle timpo de vida al token - 30 mins - pero evitar que cierre sesion si el usuario 
-//     activo, puedes utilizar el metodo que quieras.
-// } 
+const login = async (req, res) => {
+    try {
+        const validation = await validate(loginSchema, req.body);
+        if (!validation.success) {
+            return res.status(400).json({
+                error: 'Error de validacion',
+                details: validation.errors,
+            });
+        }
+
+        const { email, pass } = validation.data;
+        const user = await prisma.user.findUnique({
+            where: { email },
+            include: {
+                role: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
+        });
+
+        if (!user || user.status !== 'active') {
+            return res.status(401).json({ error: 'Credenciales invalidas' });
+        }
+
+        const isValidPassword = await bcryptjs.compare(pass, user.pass);
+        if (!isValidPassword) {
+            return res.status(401).json({ error: 'Credenciales invalidas' });
+        }
+
+        const token = createToken({
+            id: user.id,
+            email: user.email,
+            role: user.role?.name,
+        });
+        const { pass: _password, ...userWithoutPassword } = user;
+
+        return res.status(200).json({
+            message: 'Login exitoso',
+            token,
+            expiresIn: tokenExpirationSeconds,
+            user: userWithoutPassword,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 export default {
-    singUp
-    //login
+    singUp,
+    login
 };

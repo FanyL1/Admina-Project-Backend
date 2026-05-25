@@ -6,8 +6,8 @@ const router = express.Router();
 
 //Rutas Publicas
 router.post('/signup', AuthController.singUp);
+router.post('/login', AuthController.login);
 router.post('/role', roleController.createRole);
-//router.use('/login', AuthController.login);
 
 //rutas Privadas
 

@@ -40,6 +40,31 @@
         }
       }
     },
+    "/api/login": {
+      "post": {
+        "summary": "Iniciar sesion",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "pass"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "pass": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login exitoso" },
+          "400": { "description": "Datos invalidos" },
+          "401": { "description": "Credenciales invalidas" }
+        }
+      }
+    },
     "/api/role": {
       "post": {
         "summary": "Registrar un nuevo Rol (DESARROLLO)",
