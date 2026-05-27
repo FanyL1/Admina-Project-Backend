@@ -2,7 +2,7 @@ import prisma from '../config/prisma.js';
 import bcryptjs from 'bcryptjs';
 import { createToken, tokenExpirationSeconds } from '../utils/token.js';
 import { validate } from '../utils/validations/validate.js';
-import { loginSchema, registerSchema } from '../utils/validations/schemas/mainSchem.js';
+import { loginSchema, registerSchema } from '../utils/validations/schemas/authSchem.js';
 
 const salt = 10;
 
@@ -18,30 +18,45 @@ const singUp = async (req, res) => {
         }
         
         const { name, lastname ,dni, email, pass } = validation.data;  
-        
+        const hashPAssword = await bcryptjs.hash(pass, salt);
+        const defaultRole = await prisma.role.findUnique({
+            where: { name: 'Estudiante' }
+        });
+        const roleId = defaultRole['id'];
+
         const existingUser = await prisma.user.findUnique({
             where: { email },
+            select: {
+                id: true,
+                email: true,
+                status: true
+            }
         });
-        const existingDNI = await prisma.user.findUnique({
-            where: { dni },
-        });
-        
-        if (existingUser) {
+
+        if (existingUser.email === email && existingUser.status === 'active') {
             return res.status(400).json({
                 error: 'El email ya está registrado',
             });
         }
+
+        if (existingUser.email === email && existingUser.status === 'inactive') {
+
+            return res.status(200).json({ 
+                message: "Usuario inactivo", 
+            });
+
+        }
+
+        const existingDNI = await prisma.user.findUnique({
+            where: { dni }
+        });
+        
         if (existingDNI) {
             return res.status(400).json({
                 error: 'Cedula ya está registrado',
             });
         }
 
-        const defaultRole = await prisma.role.findUnique({
-            where: { name: 'Estudiante' }
-        });
-        const roleId = defaultRole['id'];
-        const hashPAssword = await bcryptjs.hash(pass, salt);
         const user = await prisma.user.create({
             data: {
                 name,
@@ -55,7 +70,7 @@ const singUp = async (req, res) => {
         res.status(201).json({ message: "Usuario creado", user });
     } catch (error) {
         if (error.code === 'P2002') {
-            return res.status(400).json({ error: "El correo ya está registrado" });
+            return res.status(400).json({ error: "Usuario ya está registrado" });
         }
         res.status(500).json({ error: error.message });
     }
