@@ -46,7 +46,8 @@ app.use(
     apiSpec: openApiPath,        // Ruta al archivo openapi.json
     validateRequests: true,      // Validar peticiones entrantes
     validateResponses: false,  
-    ignorePaths: /^\/(favicon\.ico|api-docs|api$)/, 
+    // Ignorar rutas de documentación y la raíz /api (con o sin barra final)
+    ignorePaths: /^\/(favicon\.ico|api-docs)(?:\/|$)|^\/api(?:\/|$)/,
   })
 );
 

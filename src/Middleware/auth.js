@@ -1,4 +1,5 @@
 // Middleware de verificacion de autenticación y autorización
+import prisma from '../config/prisma.js';
 import {verifyToken} from '../utils/token.js';
 
 // Verificar si el usuario está autenticado
