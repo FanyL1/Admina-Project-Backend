@@ -4,6 +4,9 @@ import AuthController from '../controllers/authController.js';
 import roleController from '../controllers/roleController.js';
 import carreraController from '../controllers/degreeController.js';
 import userController from '../controllers/userController.js';
+import categoriesRoutes from './categories.routes.js';
+import procedureTypesRoutes from './procedureTypes.routes.js';
+
 const router = express.Router();
 
 //Rutas Publicas (no utilizan protect)
@@ -15,12 +18,16 @@ router.post('/role', roleController.createRole);
 //rutas Privadas (utilizan protect)
 router.use(protect);
 
-//REGULAR
+
 //Usuarios
-router.get('/profile', protect, userController.getUserById); // Cualquier usuario autenticado puede ver su perfil
-router.patch('/profile/update', protect, userController.updateUser); // Cualquier usuario autenticado puede actualizar su perfil
+router.get('/profile', userController.getUserById); 
+router.patch('/profile/update', userController.updateUser); 
+
+//ESTUDIANTES
 
 //ADMINSTRATIVO
+router.use('/categories',restrictTo('Administrativo','Superusuario'), categoriesRoutes);
+router.use('/procedure-types',restrictTo('Administrativo','Superusuario'), procedureTypesRoutes);
 
 //SUPERUSUARIOS
 //Lista de usuarios
