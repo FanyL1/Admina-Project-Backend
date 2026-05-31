@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import {validate} from '../utils/validations/validate.js';
-import {updateUserSchema, updateUserAdminSchema} from '../utils/validations/schemas/updateUserSchem.js';
+import {updateUserSchema, updateSuperUserSchema} from '../utils/validations/schemas/updateUserSchem.js';
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
@@ -176,12 +176,12 @@ const updateUser = async (req, res) => {
         });
     }
 };
-//Falta Actualizar usuario (solo admin)
-const updateUserByAdmin = async (req, res) => {
+//Falta Actualizar usuario (solo Superusuario)
+const updateBySuperUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const validation = await validate(updateUserAdminSchema, req.body);
+        const validation = await validate(updateSuperUserSchema, req.body);
         if (!validation.success) {
             return res.status(400).json({
                 success: false,
@@ -255,7 +255,7 @@ const updateUserByAdmin = async (req, res) => {
             data: updatedUser
         });
     } catch (error) {
-        console.error('Error en updateUserByAdmin:', error);
+        console.error('Error en actualizar usuario:', error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -314,7 +314,7 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// Obtener usuarios inactivos (solo admin)
+// Obtener usuarios inactivos (solo SuperUser)
 const getInactiveUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany({
@@ -363,5 +363,5 @@ export default {
     updateUser,
     deleteUser,
     getInactiveUsers,
-    updateUserByAdmin
+    updateBySuperUser
 }

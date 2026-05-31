@@ -20,7 +20,7 @@ export const updateUserSchema = z.object({
     .regex(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).*$/, 'La contraseña debe incluir una mayúscula, un número y un caracter especial.')
 })
 
-export const updateUserAdminSchema = z.object({
+export const updateSuperUserSchema = z.object({
    name: z.string()
     .min(3,"El nombre debe tener al menos 3 caracteres")
     .max(50, 'El nombre no puede superar los 50 caracteres')
@@ -42,5 +42,5 @@ export const updateUserAdminSchema = z.object({
     .max(15, 'El DNI no puede superar los 15 caracteres')
     .regex(/^[0-9]+$/, 'El DNI solo puede contener números'),
   role: z.string()
-    .uuid("ID de rol inválido")
+    .uuid("Rol inválido")
 });

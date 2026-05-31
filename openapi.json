@@ -87,6 +87,304 @@
           "400": { "description": "Datos inválidos" }
         }
       }
+    },
+    "/api/users": {
+  "get": {
+    "summary": "Obtener todos los usuarios",
+    "tags": ["Users"],
+    "description": "Retorna una lista con todos los usuarios registrados en el sistema",
+    "parameters": [
+      {
+        "name": "page",
+        "in": "query",
+        "description": "Número de página para paginación",
+        "schema": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "description": "Cantidad de usuarios por página",
+        "schema": {
+          "type": "integer",
+          "default": 10
+        }
+      },
+      {
+        "name": "rol",
+        "in": "query",
+        "description": "Filtrar por rol de usuario",
+        "schema": {
+          "type": "string",
+          "enum": ["Estudiante", "Administrativo", "superusuarios"]
+        }
+      },
+      {
+        "name": "estado",
+        "in": "query",
+        "description": "Filtrar por estado del usuario",
+        "schema": {
+          "type": "string",
+          "enum": ["Activo", "Inactivo"]
+        }
+      },
+      {
+        "name": "search",
+        "in": "query",
+        "description": "Búsqueda por nombre, apellido, cédula o email",
+        "schema": {
+          "type": "string"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Usuarios obtenidos exitosamente",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "example": true
+                },
+                "message": {
+                  "type": "string",
+                  "example": "Usuarios obtenidos exitosamente"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                },
+                "pagination": {
+                  "type": "object",
+                  "properties": {
+                    "total": { "type": "integer" },
+                    "page": { "type": "integer" },
+                    "limit": { "type": "integer" },
+                    "totalPages": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "400": {
+        "description": "Solicitud inválida",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": false },
+                "message": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "401": {
+        "description": "No autorizado - Token no proporcionado o inválido"
+      },
+      "403": {
+        "description": "Acceso prohibido - No tiene permisos suficientes"
+      },
+      "500": {
+        "description": "Error interno del servidor"
+      }
     }
+  }
+},
+"/api/users/{id}": {
+  "get": {
+    "summary": "Obtener un usuario por ID",
+    "tags": ["Users"],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID del usuario",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Usuario obtenido exitosamente",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": { "type": "boolean", "example": true },
+                "data": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          }
+        }
+      },
+      "404": {
+        "description": "Usuario no encontrado"
+      }
+    }
+  },
+  "put": {
+    "summary": "Actualizar un usuario",
+    "tags": ["Users"],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "nombres": { "type": "string" },
+              "apellidos": { "type": "string" },
+              "cedula": { "type": "string" },
+              "rol": { 
+                "type": "string",
+                "enum": ["Estudiante", "Administrativo", "superusuarios"]
+              },
+              "email": { "type": "string", "format": "email" },
+              "estado": {
+                "type": "string",
+                "enum": ["Activo", "Inactivo"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Usuario actualizado exitosamente"
+      },
+      "400": {
+        "description": "Datos inválidos"
+      },
+      "404": {
+        "description": "Usuario no encontrado"
+      }
+    }
+  },
+  "delete": {
+    "summary": "Eliminar un usuario",
+    "tags": ["Users"],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Usuario eliminado exitosamente"
+      },
+      "404": {
+        "description": "Usuario no encontrado"
+      }
+    }
+  }
+},
+"/api/users/{id}/status": {
+  "patch": {
+    "summary": "Cambiar estado de un usuario (Activo/Inactivo)",
+    "tags": ["Users"],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "estado": {
+                "type": "string",
+                "enum": ["Activo", "Inactivo"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Estado actualizado exitosamente"
+      },
+      "400": {
+        "description": "Estado inválido"
+      },
+      "404": {
+        "description": "Usuario no encontrado"
+      }
+    }
+  }
+},
+"/api/users/{id}/rol": {
+  "patch": {
+    "summary": "Cambiar rol de un usuario",
+    "tags": ["Users"],
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      }
+    ],
+    "requestBody": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "rol": {
+                "type": "string",
+                "enum": ["Estudiante", "Administrativo", "superusuarios"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "200": {
+        "description": "Rol actualizado exitosamente"
+      },
+      "400": {
+        "description": "Rol inválido"
+      },
+      "404": {
+        "description": "Usuario no encontrado"
+      }
+    }
+  }
+}
   }
 }
