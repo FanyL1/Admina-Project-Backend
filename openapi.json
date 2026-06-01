@@ -36,14 +36,13 @@
       "post": {
         "summary": "Registrar un nuevo usuario",
         "tags": ["Authentication"],
-        "description": "Registro de uusarios e inicio de sesión",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name","lastname","dni", "email", "pass"],
+                "required": ["name", "lastname", "dni", "email", "pass"],
                 "properties": {
                   "name": { "type": "string" },
                   "lastname": { "type": "string" },
@@ -74,7 +73,7 @@
                 "required": ["email", "pass"],
                 "properties": {
                   "email": { "type": "string", "format": "email" },
-                  "pass": { "type": "string", "minLength": 1 }
+                  "pass": { "type": "string" }
                 }
               }
             }
@@ -109,79 +108,56 @@
           "201": { "description": "Rol registrado exitosamente" },
           "400": { "description": "Datos inválidos" }
         }
-      }
-    },
-    "/api/users": {
+      },
       "get": {
-        "summary": "Obtener todos los usuarios",
-        "tags": ["Users"],
-        "description": "Retorna una lista con todos los usuarios registrados en el sistema",
+        "summary": "Obtener todos los roles",
+        "tags": ["Role"],
         "parameters": [
           {
             "name": "page",
             "in": "query",
-            "description": "Número de página para paginación",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
+            "schema": { "type": "integer" }
           },
           {
             "name": "limit",
             "in": "query",
-            "description": "Cantidad de usuarios por página",
-            "schema": {
-              "type": "integer",
-              "default": 10
-            }
+            "schema": { "type": "integer" }
           },
           {
             "name": "rol",
             "in": "query",
-            "description": "Filtrar por rol de usuario",
-            "schema": {
-              "type": "string",
-              "enum": ["Estudiante", "Administrativo", "superusuarios"]
-            }
+            "schema": { "type": "string" }
           },
           {
             "name": "estado",
             "in": "query",
-            "description": "Filtrar por estado del usuario",
-            "schema": {
-              "type": "string",
-              "enum": ["Activo", "Inactivo"]
-            }
+            "schema": { "type": "string" }
           },
           {
             "name": "search",
             "in": "query",
-            "description": "Búsqueda por nombre, apellido, cédula o email",
-            "schema": {
-              "type": "string"
-            }
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
           "200": {
-            "description": "Usuarios obtenidos exitosamente",
+            "description": "Roles obtenidos exitosamente",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "example": true
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Usuarios obtenidos exitosamente"
-                    },
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/User"
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
                       }
                     },
                     "pagination": {
@@ -197,29 +173,188 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/role/:{id}": {
+      "patch": {
+        "summary": "Actualizar Rol",
+        "tags": ["Role"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rol registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      }   
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Obtener todos los usuarios",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
           },
-          "400": {
-            "description": "Solicitud inválida",
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuarios obtenidos exitosamente",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "example": false },
-                    "message": { "type": "string" }
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "name": { "type": "string" },
+                          "lastname": { "type": "string" },
+                          "dni": { "type": "string" },
+                          "role": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "integer" },
+                              "name": { "type": "string" }
+                            }
+                          },
+                          "email": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
                   }
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/users/studiants": {
+      "get": {
+        "summary": "Obtener todos los Estudiantes",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
           },
-          "401": {
-            "description": "No autorizado - Token no proporcionado o inválido"
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
           },
-          "403": {
-            "description": "Acceso prohibido - No tiene permisos suficientes"
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
           },
-          "500": {
-            "description": "Error interno del servidor"
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estudiantes obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "lastname": { "type": "string" },
+                          "dni": { "type": "string" },
+                          "role": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string" },
+                              "name": { "type": "string" }
+                            }
+                          },
+                          "email": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -233,10 +368,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "ID del usuario",
-            "schema": {
-              "type": "integer"
-            }
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
@@ -247,15 +379,29 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "success": { "type": "boolean", "example": true },
-                    "data": { "$ref": "#/components/schemas/User" }
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer" },
+                        "name": { "type": "string" },
+                        "lastname": { "type": "string" },
+                        "dni": { "type": "string" },
+                        "role": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" }
+                          }
+                        },
+                        "email": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
                   }
                 }
               }
             }
-          },
-          "404": {
-            "description": "Usuario no encontrado"
           }
         }
       },
@@ -280,29 +426,152 @@
                   "name": { "type": "string" },
                   "lastname": { "type": "string" },
                   "dni": { "type": "string" },
-                  "role": { 
-                    "type": "string",
-                    "enum": ["Estudiante", "Administrativo", "Superusuarios"]
-                  },
-                  "email": { "type": "string", "format": "email" },
-                  "status": {
-                    "type": "string",
-                    "enum": ["active", "inactive"]
-                  }
+                  "email": { "type": "string" },
+                  "status": { "type": "string" }
                 }
               }
             }
           }
         },
         "responses": {
+          "200": { "description": "Usuario actualizado exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Usuario no encontrado" }
+        }
+      }
+    },
+    "/api/users/status/{id}": {
+      "patch": {
+        "summary": "Actualizar estado del usuario (alterna entre Activo/Inactivo)",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del usuario",
+            "schema": { 
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Usuario no encontrado" },
+          "500": { "description": "Error interno del servidor" }
+        }
+      }
+    },
+    "/api/degree": {
+      "post": {
+        "summary": "Registrar una nueva Carrera(DESARROLLO)",
+        "tags": ["Degree"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rol registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos las carreras",
+        "tags": ["Degree"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
           "200": {
-            "description": "Usuario actualizado exitosamente"
-          },
-          "400": {
-            "description": "Datos inválidos"
-          },
-          "404": {
-            "description": "Usuario no encontrado"
+            "description": "Carreras obtenidas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

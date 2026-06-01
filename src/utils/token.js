@@ -1,10 +1,11 @@
 import crypto from 'crypto';
 
-export const tokenExpirationSeconds = 30 * 60;
+export const tokenExpirationSeconds = 1440 * 60;
 
-const base64UrlEncode = (data) =>{ Buffer
-    .from(JSON.stringify(data))
-    .toString('base64url');
+const base64UrlEncode = (data) =>{ 
+    return Buffer
+        .from(JSON.stringify(data))
+        .toString('base64url');
 }
 
 const base64UrlDecode = (str) => {
@@ -31,7 +32,7 @@ export const createToken = (payload) => {
         .createHmac('sha256', process.env.JWT_SECRET)
         .update(unsignedToken)
         .digest('base64url');
-
+    
     return `${unsignedToken}.${signature}`;
 };
 
