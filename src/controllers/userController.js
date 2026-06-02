@@ -1,15 +1,13 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
 import {validate} from '../utils/validations/validate.js';
-import {updateUserSchema, updateUserAdminSchema} from '../utils/validations/schemas/updateUserSchem.js';
+import {updateUserSchema, updateSuperUserSchema} from '../utils/validations/schemas/updateUserSchem.js';
+import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany({
-            where: {
-                status: 'active'
-            },
             select: {
                 id: true,
                 name: true,
@@ -176,12 +174,12 @@ const updateUser = async (req, res) => {
         });
     }
 };
-//Falta Actualizar usuario (solo admin)
-const updateUserByAdmin = async (req, res) => {
+//Falta Actualizar usuario (solo Superusuario)
+const updateBySuperUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const validation = await validate(updateUserAdminSchema, req.body);
+        const validation = await validate(updateSuperUserSchema, req.body);
         if (!validation.success) {
             return res.status(400).json({
                 success: false,
@@ -255,7 +253,7 @@ const updateUserByAdmin = async (req, res) => {
             data: updatedUser
         });
     } catch (error) {
-        console.error('Error en updateUserByAdmin:', error);
+        console.error('Error en actualizar usuario:', error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -263,8 +261,8 @@ const updateUserByAdmin = async (req, res) => {
     }
 };
 
-// Eliminar usuario (cambiar estado de active a inactive)
-const deleteUser = async (req, res) => {
+// cambiar estado (cambiar estado de active a inactive)
+const UpadateStatuseUser = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -280,9 +278,17 @@ const deleteUser = async (req, res) => {
         }
 
         if (existingUser.status === 'inactive') {
-            return res.status(400).json({
-                success: false,
-                error: 'El usuario ya está inactivo'
+            const reactivedUser = await prisma.user.update({
+                where: { id },
+                data: {
+                    status: 'active'
+                }
+            });
+
+            return  res.status(200).json({
+                success: true,
+                message: 'Usuario activado exitosamente',
+                data: reactivedUser
             });
         }
 
@@ -290,13 +296,6 @@ const deleteUser = async (req, res) => {
             where: { id },
             data: {
                 status: 'inactive'
-            },
-            select: {
-                id: true,
-                name: true,
-                lastname: true,
-                email: true,
-                status: true
             }
         });
 
@@ -314,12 +313,75 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// Obtener usuarios inactivos (solo admin)
-const getInactiveUsers = async (req, res) => {
+// cambiar rol
+const UpadateRoleUser = async (req, res) => {
     try {
+        const { id } = req.params;
+
+        const validation = await validate(onlyNameSchem, req.body);
+        if (!validation.success) {
+            return res.status(400).json({
+                error: 'Error de validacion',
+                details: validation.errors,
+            });
+        }
+        const {name} = validation.data
+        const existingUser = await prisma.user.findFirst({
+            where: { id }
+        });
+
+        if (!existingUser) {
+            return res.status(404).json({
+                success: false,
+                error: 'Usuario no encontrado'
+            });
+        }
+
+        const searchRole = await prisma.role.findUnique({
+            where: { name : name } 
+        });
+
+        if (!searchRole) {
+            return res.status(404).JSON({
+                success: false,
+                error: 'Rol no encontrado'
+            })
+        }
+
+        const updateRole = await prisma.user.update({
+            where: { id },
+            data: {
+                rol_id: searchRole.id
+            },
+            include: {
+                role: true 
+            }
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'Usuario desactivado exitosamente',
+            data: updateRole
+        });
+    } catch (error) {
+        console.error('Error en deleteUser:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
+// Obtener estudiantes
+const getStudent = async (req, res) => {
+    try {
+
+        const roleStudent = await prisma.role.findUnique({
+            where: {name: 'Estudiante'}
+        })
         const users = await prisma.user.findMany({
             where: {
-                status: 'inactive'
+                rol_id: roleStudent.id
             },
             select: {
                 id: true,
@@ -337,19 +399,15 @@ const getInactiveUsers = async (req, res) => {
                     }
                 }
             },
-            orderBy: {
-                updated_at: 'desc'
-            }
         });
 
         res.status(200).json({
             success: true,
-            message: 'Usuarios inactivos obtenidos exitosamente',
+            message: 'Estudiantes obtenidos exitosamente',
             data: users,
             count: users.length
         });
     } catch (error) {
-        console.error('Error en getInactiveUsers:', error);
         res.status(500).json({
             success: false,
             error: error.message
@@ -361,7 +419,8 @@ export default {
     getAllUsers,
     getUserById,
     updateUser,
-    deleteUser,
-    getInactiveUsers,
-    updateUserByAdmin
+    UpadateStatuseUser,
+    getStudent,
+    UpadateRoleUser,
+    updateBySuperUser
 }

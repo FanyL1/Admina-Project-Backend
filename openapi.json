@@ -35,13 +35,14 @@
     "/api/signup": {
       "post": {
         "summary": "Registrar un nuevo usuario",
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name","lastname","dni", "email", "pass"],
+                "required": ["name", "lastname", "dni", "email", "pass"],
                 "properties": {
                   "name": { "type": "string" },
                   "lastname": { "type": "string" },
@@ -62,6 +63,7 @@
     "/api/login": {
       "post": {
         "summary": "Iniciar sesion",
+        "tags": ["Authentication"],
         "requestBody": {
           "required": true,
           "content": {
@@ -71,7 +73,7 @@
                 "required": ["email", "pass"],
                 "properties": {
                   "email": { "type": "string", "format": "email" },
-                  "pass": { "type": "string", "minLength": 1 }
+                  "pass": { "type": "string" }
                 }
               }
             }
@@ -87,6 +89,7 @@
     "/api/role": {
       "post": {
         "summary": "Registrar un nuevo Rol (DESARROLLO)",
+        "tags": ["Role"],
         "requestBody": {
           "required": true,
           "content": {
@@ -104,6 +107,472 @@
         "responses": {
           "201": { "description": "Rol registrado exitosamente" },
           "400": { "description": "Datos inválidos" }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos los roles",
+        "tags": ["Role"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Roles obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/role/:{id}": {
+      "patch": {
+        "summary": "Actualizar Rol",
+        "tags": ["Role"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rol registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      }   
+    },
+    "/api/users": {
+      "get": {
+        "summary": "Obtener todos los usuarios",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuarios obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "integer" },
+                          "name": { "type": "string" },
+                          "lastname": { "type": "string" },
+                          "dni": { "type": "string" },
+                          "role": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "integer" },
+                              "name": { "type": "string" }
+                            }
+                          },
+                          "email": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/studiants": {
+      "get": {
+        "summary": "Obtener todos los Estudiantes",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estudiantes obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "lastname": { "type": "string" },
+                          "dni": { "type": "string" },
+                          "role": {
+                            "type": "object",
+                            "properties": {
+                              "id": { "type": "string" },
+                              "name": { "type": "string" }
+                            }
+                          },
+                          "email": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Obtener un usuario por ID",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuario obtenido exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "integer" },
+                        "name": { "type": "string" },
+                        "lastname": { "type": "string" },
+                        "dni": { "type": "string" },
+                        "role": {
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "integer" },
+                            "name": { "type": "string" }
+                          }
+                        },
+                        "email": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Actualizar un usuario",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "lastname": { "type": "string" },
+                  "dni": { "type": "string" },
+                  "email": { "type": "string" },
+                  "status": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Usuario actualizado exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Usuario no encontrado" }
+        }
+      }
+    },
+    "/api/users/status/{id}": {
+      "patch": {
+        "summary": "Actualizar estado del usuario (alterna entre Activo/Inactivo)",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del usuario",
+            "schema": { 
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Usuario no encontrado" },
+          "500": { "description": "Error interno del servidor" }
+        }
+      }
+    },
+    "/api/degree": {
+      "post": {
+        "summary": "Registrar una nueva Carrera(DESARROLLO)",
+        "tags": ["Degree"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rol registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos las carreras",
+        "tags": ["Degree"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Carreras obtenidas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

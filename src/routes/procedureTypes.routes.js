@@ -1,11 +1,6 @@
 import { Router } from 'express';
 import { restrictTo } from '../Middleware/auth.js';
-import { 
-  getProcedureTypes, 
-  createProcedureType, 
-  updateProcedureType, 
-  deleteProcedureType 
-} from '../controllers/procedureTypes.controller.js'; // Recuerda el .js al final
+import {  getProcedureTypes,  createProcedureType,  updateProcedureType,  deleteProcedureType } from '../controllers/procedureTypes.controller.js';
 
 const router = Router();
 

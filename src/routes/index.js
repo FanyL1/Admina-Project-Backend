@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect, restrictTo } from "../Middleware/auth.js";
+import { protect, restrictTo} from "../Middleware/auth.js";
 import AuthController from '../controllers/authController.js';
 import roleController from '../controllers/roleController.js';
 import carreraController from '../controllers/degreeController.js';
@@ -13,30 +13,35 @@ const router = express.Router();
 router.get('/', (req, res) => { res.json({ message: 'API funcionando'})});
 router.post('/signup', AuthController.singUp);
 router.post('/login', AuthController.login);
-router.post('/role', roleController.createRole);
 
 //rutas Privadas (utilizan protect)
 router.use(protect);
 
-//REGULAR
+
 //Usuarios
 router.get('/profile', userController.getUserById); 
 router.patch('/profile/update', userController.updateUser); 
 
+//ESTUDIANTES
+
 //ADMINSTRATIVO
-router.use('/categories', categoriesRoutes);
-router.use('/procedure-types', procedureTypesRoutes);
+router.use('/categories',restrictTo('Administrativo','Superusuario'), categoriesRoutes);
+router.use('/procedure-types',restrictTo('Administrativo','Superusuario'), procedureTypesRoutes);
+router.patch('/users/status/:id', restrictTo('Administrativo','Superusuario'), userController.UpadateStatuseUser); // Solo Superusuario puede eliminar usuarios
+router.get('/users/studiants', restrictTo('Superusuario', 'Administrativo'), userController.getStudent); // Solo Superusuario y Administrativos
 
-//ADMIN
+//SUPERUSUARIOS
 //Lista de usuarios
-router.get('/users', restrictTo('admin'), userController.getAllUsers); 
-router.get('/users/inactive', restrictTo('admin'), userController.getInactiveUsers); 
-router.patch('/users/delete/:id', restrictTo('admin'), userController.deleteUser); 
-router.patch('/users/update/:id', restrictTo('admin'), userController.updateUser); 
-router.patch('/users/update/admin/:id', restrictTo('admin'), userController.updateUserByAdmin); 
+router.get('/users', restrictTo('Superusuario'), userController.getAllUsers); // Solo Superusuario puede ver todos los usuarios activos
+router.patch('/users/update/:id', restrictTo('Superusuario'), userController.updateUser); // Solo Superusuario puede actualizar usuarios
+router.patch('/users/update/Superusuario/:id', restrictTo('Superusuario'), userController.updateBySuperUser); // Solo Superusuario puede actualizar usuarios incluyendo rol y dni
+router.patch('/users/role/:id', restrictTo('Superusuario'), userController.UpadateRoleUser); // Solo Superusuario puede cambiar roles
+//Rol (solo desarrollo)
+router.post('/role', restrictTo('Superusuario'), roleController.createRole);
+router.get('/role',restrictTo('Superusuario'), roleController.getAllRoles);
+router.patch('/role/:id',restrictTo('Superusuario'), roleController.UpdateRole);
 //Carerras
-router.get('/carreras', restrictTo('admin'), carreraController.allDegree );  
-router.post('/carreras', restrictTo('admin'), carreraController.addDegree);  
-router.patch('/carreras/:id', restrictTo('admin'), carreraController.updateDegree);  
-
+router.get('/degree', restrictTo('Superusuario'), carreraController.allDegree );  // Solo Superusuario puede ver
+router.post('/degree', restrictTo('Superusuario'), carreraController.addDegree);  // Solo Superusuario puede crear
+router.patch('/degree/:id', restrictTo('Superusuario'), carreraController.updateDegree);  // Solo Superusuario puede actualizar
 export default router;

@@ -17,12 +17,14 @@ const singUp = async (req, res) => {
             });
         }
         
+        
         const { name, lastname, dni, email, pass } = validation.data;
         const hashPAssword = await bcryptjs.hash(pass, salt);
         const defaultRole = await prisma.role.findUnique({
             where: { name: 'Estudiante' }
         });
         const roleId = defaultRole['id'];
+        
 
         const existingUser = await prisma.user.findUnique({
             where: { email },
@@ -32,20 +34,13 @@ const singUp = async (req, res) => {
                 status: true
             }
         });
-
-        if (existingUser.email === email && existingUser.status === 'active') {
+        
+        if (existingUser) {
             return res.status(400).json({
                 error: 'El email ya está registrado',
             });
         }
-
-        if (existingUser.email === email && existingUser.status === 'inactive') {
-
-            return res.status(200).json({ 
-                message: "Usuario inactivo", 
-            });
-
-        }
+        console.log(email);
 
         const existingDNI = await prisma.user.findUnique({
             where: { dni }
@@ -56,7 +51,7 @@ const singUp = async (req, res) => {
                 error: 'Cedula ya está registrado',
             });
         }
-
+        
         const user = await prisma.user.create({
             data: {
                 name,

@@ -48,16 +48,3 @@ export const restrictTo = (...roles) => {
         next();
     };
 };
-
-// Verificar si es administrador (atajo)
-export const adminOnly = async (req, res, next) => {
-    const userRole = req.user.role?.name || req.user.rol?.name;
-    
-    if (userRole !== 'admin' && userRole !== 'Administrador') {
-        return res.status(403).json({ 
-            error: 'Acceso denegado - Se requieren permisos de administrador' 
-        });
-    }
-    
-    next();
-};
