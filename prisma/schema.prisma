@@ -107,7 +107,7 @@ model Request {
 
 model Document {
   id                String    @id @default(uuid()) @db.Uuid
-  request_id        String   @db.Uuid
+  request_id        String?   @db.Uuid
   name_requeriments String   @db.VarChar
   name_file         String   @db.VarChar
   router_file       String   @db.VarChar
@@ -116,7 +116,7 @@ model Document {
   updated_at        DateTime @db.Timestamp(6)
   status            String   @db.VarChar
 
-  request Request @relation(fields: [request_id], references: [id])
+  request Request? @relation(fields: [request_id], references: [id])
 
   @@map("documents")
   @@schema("core")
