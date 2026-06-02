@@ -14,11 +14,11 @@ const createRole = async (req, res) => {
             });
         }
         const { name } = validation.data;
-        const user = await prisma.role.create({
+        const role = await prisma.role.create({
             data: { name },
         });
 
-        res.status(200).json({ message: "Rol creado", rol });
+        res.status(200).json({ message: 'Rol creado', role });
     } catch (error) {
         
         if (error.code === 'P2002') {
@@ -55,21 +55,21 @@ const UpdateRole = async (req, res) => {
         });
 
         if (searchRole) {
-            return res.status(404).JSON({
+            return res.status(400).json({
                 success: false,
                 error: 'Rol ya registrado'
-            })
+            });
         }
 
         const updateRole = await prisma.role.update({
             where: { id },
             data: {
-                name: searchRole
+                name,
             },
-            include: {
+            select: {
                 id: true,
-                name: true
-            }
+                name: true,
+            },
         });
 
         res.status(200).json({

@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import bcrypt from 'bcryptjs';
-import {validate} from '../utils/validations/validate.js';
-import {updateUserSchema, updateSuperUserSchema} from '../utils/validations/schemas/updateUserSchem.js';
+import { validate } from '../utils/validations/validate.js';
+import { updateUserSchema, updateUserAdminSchema } from '../utils/validations/schemas/updateUserSchem.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 
 // Obtener todos los usuarios
@@ -97,7 +97,7 @@ const updateUser = async (req, res) => {
                 details: validation.errors,
             });
         }
-        const id = req.user?.id;
+        const id = req.params.id || req.user?.id;
         const { name, lastname, email, pass } = validation.data;
 
         const existingUser = await prisma.user.findUnique({
@@ -179,7 +179,7 @@ const updateBySuperUser = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const validation = await validate(updateSuperUserSchema, req.body);
+        const validation = await validate(updateUserAdminSchema, req.body);
         if (!validation.success) {
             return res.status(400).json({
                 success: false,
