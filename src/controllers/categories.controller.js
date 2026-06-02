@@ -1,4 +1,6 @@
 import prisma from '../config/prisma.js';
+import { validate } from '../utils/validations/validate.js';
+import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 
 export const getCategories = async (req, res) => {
   try {
@@ -11,12 +13,15 @@ export const getCategories = async (req, res) => {
 
 export const createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre de la categoría es obligatorio' });
+    const validation = await validate(onlyNameSchem, req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Error de validación',
+        details: validation.errors,
+      });
     }
 
+    const { name } = validation.data;
     const newCategory = await prisma.category.create({
       data: { name },
     });
@@ -30,12 +35,15 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre de la categoría es obligatorio' });
+    const validation = await validate(onlyNameSchem, req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Error de validación',
+        details: validation.errors,
+      });
     }
 
+    const { name } = validation.data;
     const updatedCategory = await prisma.category.update({
       where: { id: String(id) },
       data: { name },

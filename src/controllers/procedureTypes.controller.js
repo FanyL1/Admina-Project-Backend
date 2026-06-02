@@ -1,4 +1,6 @@
 import prisma from '../config/prisma.js';
+import { validate } from '../utils/validations/validate.js';
+import { procedureTypeSchema } from '../utils/validations/schemas/procedureTypeSchem.js';
 
 // Obtener todos los tipos de trámites
 export const getProcedureTypes = async (req, res) => {
@@ -16,18 +18,17 @@ export const getProcedureTypes = async (req, res) => {
 // Crear un tipo de trámite (Aquí guardamos el JSON)
 export const createProcedureType = async (req, res) => {
   try {
-    const { name, requirements } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre del tipo de trámite es obligatorio' });
+    const validation = await validate(procedureTypeSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Error de validación',
+        details: validation.errors,
+      });
     }
 
-    if (requirements === undefined || typeof requirements !== 'object') {
-      return res.status(400).json({ error: 'Los requisitos son obligatorios y deben enviarse como JSON válido' });
-    }
-
+    const { name, requirements } = validation.data;
     const newType = await prisma.typeProcedure.create({
-      data: { 
+      data: {
         name,
         requirements,
       },
@@ -43,19 +44,18 @@ export const createProcedureType = async (req, res) => {
 export const updateProcedureType = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, requirements } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'El nombre del tipo de trámite es obligatorio' });
+    const validation = await validate(procedureTypeSchema, req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Error de validación',
+        details: validation.errors,
+      });
     }
 
-    if (requirements === undefined || typeof requirements !== 'object') {
-      return res.status(400).json({ error: 'Los requisitos son obligatorios y deben enviarse como JSON válido' });
-    }
-
+    const { name, requirements } = validation.data;
     const updatedType = await prisma.typeProcedure.update({
       where: { id: String(id) },
-      data: { 
+      data: {
         name,
         requirements,
       },

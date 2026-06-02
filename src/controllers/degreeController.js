@@ -1,12 +1,11 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
-import {onlyNameSchem, UpdateSchem} from "../utils/validations/schemas/onlyNameSchem.js"
-import { error } from "node:console";
+import { onlyNameSchem, UpdateSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 
-//Crear carrera
-const addDegree = async(req,res) => {
+// Crear carrera
+const addDegree = async (req, res) => {
     try {
-        const validation = await validate(onlyNameSchem,req.body)
+        const validation = await validate(onlyNameSchem, req.body);
         if (!validation.success) {
             return res.status(400).json({
                 error: 'Error de validación',
@@ -14,11 +13,11 @@ const addDegree = async(req,res) => {
             });
         }
 
-        const {name} = validation.data;
+        const { name } = validation.data;
 
-        const existingDegree = await prisma.findUnique({
-            where: {name}
-        })
+        const existingDegree = await prisma.carrera.findUnique({
+            where: { name }
+        });
 
         if(existingDegree){
             return res.status(400).json({
@@ -61,26 +60,25 @@ const allDegree = async(req,res)=>{
 
 }
 
-//Este obtener es para modificar la carrera
-const updateDegree = async(res,req) => {
+// Este endpoint es para modificar la carrera
+const updateDegree = async (req, res) => {
     try {
-
-        const validation = await validate(UpdateSchem,req.body);
+        const validation = await validate(UpdateSchem, req.body);
         if (!validation.success) {
             return res.status(400).json({
                 error: 'Error de validación',
                 details: validation.errors,
             });
         }
-        
+
         const { id } = req.params;
         const { name, status } = validation.data;
 
-        const updatedData = {};
-        if (name !== undefined) updatedData.name = name;
-        if (status !== undefined) updatedData.status = status;
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (status !== undefined) updateData.status = status;
 
-        const getDegre = prisma.carrera.update({
+        const updatedDegree = await prisma.carrera.update({
             where: { id },
             data: updateData,
             select: {
@@ -88,11 +86,11 @@ const updateDegree = async(res,req) => {
                 name: true,
                 status: true,
             }
-        }) 
+        });
 
         res.status(200).json({
-            message: "Carrera actualizada",
-            carrera: updatedDegree
+            message: 'Carrera actualizada',
+            carrera: updatedDegree,
         });
 
     } catch (error) {

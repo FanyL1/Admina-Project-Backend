@@ -1,19 +1,21 @@
 import prisma from '../config/prisma.js';
-import bcryptjs from 'bcryptjs';
 import { validate } from '../utils/validations/validate.js';
-import {registerSchema} from '../utils/validations/schemas/authSchem.js'
-import { string } from 'zod';
+import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 
-// Este este enpoint es para desarrollo no esta disponible la 
-// opcion de crear roles en el producto final
+// Este endpoint es para desarrollo no está disponible la 
+// opción de crear roles en el producto final
 const createRole = async (req, res) => {
     try {
-
-        const {name} = req.body;        
+        const validation = await validate(onlyNameSchem, req.body);
+        if (!validation.success) {
+            return res.status(400).json({
+                error: 'Error de validación',
+                details: validation.errors,
+            });
+        }
+        const { name } = validation.data;
         const user = await prisma.role.create({
-            data: {
-                name,
-            }
+            data: { name },
         });
 
         res.status(200).json({ message: "Rol creado", user });

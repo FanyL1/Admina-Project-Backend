@@ -45,7 +45,7 @@ const getAllUsers = async (req, res) => {
 // Obtener un usuario por ID
 const getUserById = async (req, res) => {
     try {
-        const { id } = req.params;
+        const id = req.user?.id;
 
         const user = await prisma.user.findUnique({
             where: { id },
@@ -99,8 +99,8 @@ const updateUser = async (req, res) => {
                 details: validation.errors,
             });
         }
-        const { id } = req.params;
-        const { name, lastname, email, pass } = req.body;
+        const id = req.user?.id;
+        const { name, lastname, email, pass } = validation.data;
 
         const existingUser = await prisma.user.findUnique({
             where: { id }
@@ -190,7 +190,7 @@ const updateUserByAdmin = async (req, res) => {
             });
         }
 
-        const { name, lastname, email, dni, role, pass, status } = req.body;
+        const { name, lastname, email, dni, role, pass, status } = validation.data;
         const existingUser = await prisma.user.findUnique({
             where: { id }
         });

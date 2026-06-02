@@ -17,7 +17,7 @@ const singUp = async (req, res) => {
             });
         }
         
-        const { name, lastname ,dni, email, pass } = validation.data;  
+        const { name, lastname, dni, email, pass } = validation.data;
         const hashPAssword = await bcryptjs.hash(pass, salt);
         const defaultRole = await prisma.role.findUnique({
             where: { name: 'Estudiante' }
