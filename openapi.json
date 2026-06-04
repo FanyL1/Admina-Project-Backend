@@ -7,32 +7,13 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
+      "url": "http://localhost:3000/api",
       "description": "Servidor local"
     }
   ],
   "paths": {
-    "/api": {
-      "get": {
-        "summary": "Raíz de la API",
-        "responses": {
-          "200": {
-            "description": "API funcionando",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/signup": {
+
+    "/signup": {
       "post": {
         "summary": "Registrar un nuevo usuario",
         "tags": ["Authentication"],
@@ -60,7 +41,7 @@
         }
       }
     },
-    "/api/login": {
+    "/login": {
       "post": {
         "summary": "Iniciar sesion",
         "tags": ["Authentication"],
@@ -86,7 +67,7 @@
         }
       }
     },
-    "/api/role": {
+    "/role": {
       "post": {
         "summary": "Registrar un nuevo Rol (DESARROLLO)",
         "tags": ["Role"],
@@ -177,7 +158,7 @@
         }
       }
     },
-    "/api/role/:{id}": {
+    "/role/:{id}": {
       "patch": {
         "summary": "Actualizar Rol",
         "tags": ["Role"],
@@ -201,7 +182,7 @@
         }
       }   
     },
-    "/api/users": {
+    "/users": {
       "get": {
         "summary": "Obtener todos los usuarios",
         "tags": ["Users"],
@@ -280,7 +261,7 @@
         }
       }
     },
-    "/api/users/studiants": {
+    "/users/studiants": {
       "get": {
         "summary": "Obtener todos los Estudiantes",
         "tags": ["Users"],
@@ -359,7 +340,7 @@
         }
       }
     },
-    "/api/users/{id}": {
+    "/users/{id}": {
       "get": {
         "summary": "Obtener un usuario por ID",
         "tags": ["Users"],
@@ -440,7 +421,7 @@
         }
       }
     },
-    "/api/users/status/{id}": {
+    "/users/status/{id}": {
       "patch": {
         "summary": "Actualizar estado del usuario (alterna entre Activo/Inactivo)",
         "tags": ["Users"],
@@ -485,7 +466,7 @@
         }
       }
     },
-    "/api/degree": {
+    "/degree": {
       "post": {
         "summary": "Registrar una nueva Carrera(DESARROLLO)",
         "tags": ["Degree"],
@@ -575,6 +556,422 @@
           }
         }
       }
+    },
+   "/degree/:id": {
+      "patch": {
+        "summary": "Actualizar Carrera",
+        "tags": ["Degree"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { 
+                    "type": "string",
+                    "description": "Nombre de la carrera (opcional)"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive", "completed"],
+                    "description": "Estado de la carrera (opcional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Carrera actualizada exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Carrera no encontrada" }
+        }
+      }
+    },
+    "/users/update/Superusuario/:id": {
+      "patch": {
+        "summary": "Actualizar usuario en modo Superusuario",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del usuario a actualizar",
+            "schema": { 
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": { 
+            "description": "Usuario actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "role": { 
+                          "type": "object",
+                          "properties": {
+                            "id": { "type": "string" },
+                            "name": { "type": "string" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { 
+            "description": "Datos inválidos" 
+          },
+          "401": { 
+            "description": "No autorizado" 
+          },
+          "404": { 
+            "description": "Usuario no encontrado" 
+          },
+          "500": { 
+            "description": "Error interno del servidor" 
+          }
+        }
+      }
+    },
+    "/categories": {
+      "post": {
+        "summary": "Registrar una nueva Categoria de tramite",
+        "tags": ["Categories"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rol registrado exitosamente" },
+          "400": { "description": "Datos inválidos" }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos las categorias",
+        "tags": ["Categories"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "rol",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "estado",
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categorías obtenidas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "status": { "type": "string" }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/:id": {
+      "patch": {
+        "summary": "Actualizar Categoria",
+        "tags": ["Categories"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { 
+                    "type": "string",
+                    "description": "Nombre de la categoria (opcional)"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive", "completed"],
+                    "description": "Estado de la categoria (opcional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Categoria actualizada exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Categoria no encontrada" }
+        }
+      }
+    },
+    "/procedure-types": {
+      "post": {
+        "summary": "Registro tramite y requisitos",
+        "tags": ["Procedure-types"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nombre del trámite"
+                  },
+                  "requirements": {
+                    "type": "object",
+                    "description": "Requisitos del trámite en formato JSON",
+                    "example": {
+                      "documents": ["Cédula", "Constancia de Estudio"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Trámite registrado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "requirements": { "type": "object" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos los trámites",
+        "tags": ["Procedure-types"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Número de página"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Límite de registros por página"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive"]
+            },
+            "description": "Filtrar por estado"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Búsqueda por nombre"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trámites obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "name": { "type": "string" },
+                          "requirements": {
+                            "type": "object",
+                            "description": "Requisitos en formato JSON"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": ["active", "inactive"]
+                          }
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/procedure-types/{id}": {
+      "patch": {
+        "summary": "Actualizar trámite",
+        "tags": ["Procedure-types"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID del trámite"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Nombre del trámite (opcional)"
+                  },
+                  "requirements": {
+                    "type": "object",
+                    "description": "Requisitos del trámite en formato JSON (opcional)",
+                    "example": {
+                      "documents": ["Cédula", "Comprobante de domicilio"]                
+                    }
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": ["active", "inactive"],
+                    "description": "Estado del trámite (opcional)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Trámite actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "name": { "type": "string" },
+                        "requirements": { "type": "object" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Trámite no encontrado" }
+        }
+      }
     }
-  }
+  }  
 }

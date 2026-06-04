@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import { restrictTo } from '../Middleware/auth.js';
-import {   getCategories,  createCategory,  updateCategory,  deleteCategory } from '../controllers/categories.controller.js';
+import {   getCategories,  createCategory,  updateCategory } from '../controllers/categories.controller.js';
 
 const router = Router();
 
-router.get('/', getCategories);
-router.post('/', restrictTo('admin'), createCategory);
-router.patch('/:id', restrictTo('admin'), updateCategory);
-router.delete('/:id', restrictTo('admin'), deleteCategory);
+router.get('/', restrictTo('Administrativo','Superusuario'), getCategories);
+router.post('/',restrictTo('Administrativo','Superusuario'), createCategory);
+router.patch('/:id',restrictTo('Administrativo','Superusuario'), updateCategory);
 
 export default router;

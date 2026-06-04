@@ -5,7 +5,12 @@ import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 export const getCategories = async (req, res) => {
   try {
     const categories = await prisma.category.findMany(); // Ajusta 'category' si es necesario
-    res.json(categories);
+
+    return res.json({
+      success: true,
+      message: "Categoria creada exitosamente",
+      data: categories
+    });
   } catch (error) {
     res.status(500).json({ error: 'Error al obtener las categorías' });
   }
@@ -22,13 +27,20 @@ export const createCategory = async (req, res) => {
     }
 
     const { name } = validation.data;
+    
     const newCategory = await prisma.category.create({
-      data: { name },
+      data: { name }
     });
-    res.status(201).json(newCategory);
+
+    return res.status(201).json({
+      success: true,
+      message: "Categoria creada exitosamente",
+      data: newCategory
+    });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al crear la categoría' });
+    return res.status(500).json({ error: 'Error al crear la categoría' });
   }
 };
 
@@ -45,25 +57,18 @@ export const updateCategory = async (req, res) => {
 
     const { name } = validation.data;
     const updatedCategory = await prisma.category.update({
-      where: { id: String(id) },
+      where: { id: id },
       data: { name },
     });
-    res.json(updatedCategory);
+    
+     return res.json({
+      success: true,
+      message: "Categoria creada exitosamente",
+      data: updatedCategory
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al actualizar la categoría' });
-  }
-};
-
-export const deleteCategory = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await prisma.category.delete({
-      where: { id: String(id) },
-    });
-    res.json({ message: 'Categoría eliminada correctamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al eliminar la categoría' });
   }
 };

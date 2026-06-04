@@ -6,7 +6,7 @@ import { procedureTypeSchema } from '../utils/validations/schemas/procedureTypeS
 export const getProcedureTypes = async (req, res) => {
   try {
     const types = await prisma.typeProcedure.findMany({
-      // include: { category: true } // Descomenta esta línea si quieres que al pedir el trámite también te traiga los datos de su categoría
+     // where: { status: 'active' },
     });
     res.json(types);
   } catch (error) {
@@ -54,7 +54,7 @@ export const updateProcedureType = async (req, res) => {
 
     const { name, requirements } = validation.data;
     const updatedType = await prisma.typeProcedure.update({
-      where: { id: String(id) },
+      where: { id: id},
       data: {
         name,
         requirements,
@@ -64,20 +64,5 @@ export const updateProcedureType = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al actualizar el tipo de trámite' });
-  }
-};
-
-// Eliminar un tipo de trámite
-export const deleteProcedureType = async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    await prisma.typeProcedure.delete({
-      where: { id: String(id) },
-    });
-    res.json({ message: 'Tipo de trámite eliminado correctamente' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al eliminar el tipo de trámite' });
   }
 };

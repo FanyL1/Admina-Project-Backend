@@ -53,7 +53,12 @@ const allDegree = async(req,res)=>{
                 status: true,
             }
         });
-        res.status(200).json({message: "Carreras obtenidas", getDegree})
+
+        return res.status(200).json({
+            success: true,
+            message: "Carreras obtenidas exitosamente",
+            data: getDegree 
+        });
     }catch(error){
         return res.status(500).json({error: error.message })
     }
