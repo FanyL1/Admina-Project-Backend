@@ -110,9 +110,6 @@ export const getRequestsByUser = async (req, res) => {
         observation: true,
         updated_at: true,
         status: true,
-      },
-      orderBy: {
-        created_at: 'desc'
       }
     });
 
