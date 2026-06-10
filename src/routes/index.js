@@ -3,9 +3,15 @@ import { protect, restrictTo} from "../Middleware/auth.js";
 import AuthController from '../controllers/authController.js';
 import roleController from '../controllers/roleController.js';
 import carreraController from '../controllers/degreeController.js';
-import userController from '../controllers/userController.js';
+import userRouter from './user.routes.js';
 import categoriesRoutes from './categories.routes.js';
 import procedureTypesRoutes from './procedureTypes.routes.js';
+import requestRoutes from './request.routes.js';
+import { getUserById, updateUser} from '../controllers/userController.js';
+
+import {getRequests, getOneRequest, getRequestsByUser, createRequest, getAdminRequests, updateRequestStatus} from '../controllers/Request.Controller.js';
+import {getDocumentsByRequest, uploadDocuments, updateDocumentFile, addDocumentToRequest} from '../controllers/documents.Controller.js';
+import { uploadMultipleFiles, uploadSingleFile, handleMulterError } from '../Middleware/upload.js';
 
 const router = express.Router();
 
@@ -17,31 +23,25 @@ router.post('/login', AuthController.login);
 //rutas Privadas (utilizan protect)
 router.use(protect);
 
+router.get('/profile', getUserById);
+router.patch('/profile/update', updateUser); 
 
-//Usuarios
-router.get('/profile', userController.getUserById); 
-router.patch('/profile/update', userController.updateUser); 
+router.use('/requests', restrictTo('Estudiante','Superusuario'), requestRoutes); // Rutas solicutudes para estudiantes
 
-//ESTUDIANTES
-
-//ADMINSTRATIVO
 router.use('/categories',restrictTo('Administrativo','Superusuario'), categoriesRoutes);
-router.use('/procedure-types',restrictTo('Administrativo','Superusuario'), procedureTypesRoutes);
-router.patch('/users/status/:id', restrictTo('Administrativo','Superusuario'), userController.UpadateStatuseUser); // Solo Superusuario puede eliminar usuarios
-router.get('/users/studiants', restrictTo('Superusuario', 'Administrativo'), userController.getStudent); // Solo Superusuario y Administrativos
 
-//SUPERUSUARIOS
-//Lista de usuarios
-router.get('/users', restrictTo('Superusuario'), userController.getAllUsers); // Solo Superusuario puede ver todos los usuarios activos
-router.patch('/users/update/:id', restrictTo('Superusuario'), userController.updateUser); // Solo Superusuario puede actualizar usuarios
-router.patch('/users/update/Superusuario/:id', restrictTo('Superusuario'), userController.updateBySuperUser); // Solo Superusuario puede actualizar usuarios incluyendo rol y dni
-router.patch('/users/role/:id', restrictTo('Superusuario'), userController.UpadateRoleUser); // Solo Superusuario puede cambiar roles
-//Rol (solo desarrollo)
+router.use('/procedure-types',restrictTo('Administrativo','Superusuario'), procedureTypesRoutes);
+
+router.use('/users', userRouter);
+
+//Rol
 router.post('/role', restrictTo('Superusuario'), roleController.createRole);
 router.get('/role',restrictTo('Superusuario'), roleController.getAllRoles);
 router.patch('/role/:id',restrictTo('Superusuario'), roleController.UpdateRole);
+
 //Carerras
-router.get('/degree', restrictTo('Superusuario'), carreraController.allDegree );  // Solo Superusuario puede ver
-router.post('/degree', restrictTo('Superusuario'), carreraController.addDegree);  // Solo Superusuario puede crear
-router.patch('/degree/:id', restrictTo('Superusuario'), carreraController.updateDegree);  // Solo Superusuario puede actualizar
+router.get('/degree', restrictTo('Superusuario'), carreraController.allDegree );  
+router.post('/degree', restrictTo('Superusuario'), carreraController.addDegree); 
+router.patch('/degree/:id', restrictTo('Superusuario'), carreraController.updateDegree);
+
 export default router;

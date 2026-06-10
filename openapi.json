@@ -158,7 +158,7 @@
         }
       }
     },
-    "/role/:{id}": {
+    "/role/{id}": {
       "patch": {
         "summary": "Actualizar Rol",
         "tags": ["Role"],
@@ -557,7 +557,7 @@
         }
       }
     },
-   "/degree/:id": {
+   "/degree/{id}": {
       "patch": {
         "summary": "Actualizar Carrera",
         "tags": ["Degree"],
@@ -589,7 +589,7 @@
         }
       }
     },
-    "/users/update/Superusuario/:id": {
+    "/users/update/Superusuario/{id}": {
       "patch": {
         "summary": "Actualizar usuario en modo Superusuario",
         "tags": ["Users"],
@@ -739,7 +739,7 @@
         }
       }
     },
-    "/categories/:id": {
+    "/categories/{id}": {
       "patch": {
         "summary": "Actualizar Categoria",
         "tags": ["Categories"],
@@ -793,6 +793,10 @@
                     "example": {
                       "documents": ["Cédula", "Constancia de Estudio"]
                     }
+                  },
+                  "category_id": {
+                    "type": "string",
+                    "description": "Id de la categoria a la que pertenece el trámite"
                   }
                 }
               }
@@ -815,6 +819,7 @@
                         "id": { "type": "string" },
                         "name": { "type": "string" },
                         "requirements": { "type": "object" },
+                        "category_id": { "type": "string" },
                         "status": { "type": "string" }
                       }
                     }
@@ -881,7 +886,7 @@
                           },
                           "status": {
                             "type": "string",
-                            "enum": ["active", "inactive"]
+                            "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
                           }
                         }
                       }
@@ -934,9 +939,13 @@
                       "documents": ["Cédula", "Comprobante de domicilio"]                
                     }
                   },
+                  "category_id": {
+                    "type": "string",
+                    "description": "Id de la categoria a la que pertenece el trámite (opcional)"
+                  },
                   "status": {
                     "type": "string",
-                    "enum": ["active", "inactive"],
+                    "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"],
                     "description": "Estado del trámite (opcional)"
                   }
                 }
@@ -960,6 +969,7 @@
                         "id": { "type": "string" },
                         "name": { "type": "string" },
                         "requirements": { "type": "object" },
+                        "category_id": { "type": "string" },
                         "status": { "type": "string" }
                       }
                     }
@@ -972,6 +982,561 @@
           "404": { "description": "Trámite no encontrado" }
         }
       }
+    },
+    "/requests": {
+      "post": {
+        "summary": "Registrar una solicitud de trámite",
+        "tags": ["Request"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                 "required": ["user_id", "type_id", "carrera_id"],
+                "properties": {
+                  "user_id": { 
+                    "type": "string", 
+                    "description": "ID del usuario" 
+                  },
+                  "createByname": { 
+                    "type": "string", 
+                    "description": "Nombre del creador (si es undefined se guarda 'Mismo Usuario')" 
+                  },
+                  "type_id": { 
+                    "type": "string", 
+                    "description": "ID del tipo" 
+                  },
+                  "carrera_id": { 
+                    "type": "string", 
+                    "description": "ID de la carrera" 
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Solicitud registrada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "user_id": { "type": "string" },
+                        "type_id": { "type": "string" },  
+                        "carrera_id": { "type": "string" },
+                        "observation": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" }
+        }
+      },
+      "get": {
+        "summary": "Obtener todos las solicitudes de trámite",
+        "tags": ["Request"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Número de página"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Límite de registros por página"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+            },
+            "description": "Filtrar por estado"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Búsqueda por nombre"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitudes obtenidas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "user_id": { "type": "string" },
+                          "createByname": { "type": "string" },
+                          "type_id": { "type": "string" },
+                          "carrera_id": { "type": "string" },
+                          "observation": { "type": "string" },
+                          "createdAt": { "type": "string", "format": "date-time" },
+                          "updatedAt": { "type": "string", "format": "date-time" },
+                          "status":{
+                            "type": "string",
+                            "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+                          },
+                          "userRevisor": { "type": "string"}
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests/admin/{revisorId}": {
+      "get": {
+        "summary": "Obtener todos las solicitudes de trámite Activas (que no estan Aprobadads o Rechazadas)",
+        "tags": ["Request"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Número de página"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer" },
+            "description": "Límite de registros por página"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+            },
+            "description": "Filtrar por estado"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" },
+            "description": "Búsqueda por nombre"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitudes obtenidas exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "user_id": { "type": "string" },
+                          "createByname": { "type": "string" },
+                          "type_id": { "type": "string" },
+                          "carrera_id": { "type": "string" },
+                          "observation": { "type": "string" },
+                          "createdAt": { "type": "string", "format": "date-time" },
+                          "updatedAt": { "type": "string", "format": "date-time" },
+                          "status":{
+                            "type": "string",
+                            "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+                          },
+                          "userRevisor":{"type":"string"}
+                        }
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "total": { "type": "integer" },
+                        "page": { "type": "integer" },
+                        "limit": { "type": "integer" },
+                        "totalPages": { "type": "integer" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests/{id}": {
+      "get": {
+        "summary": "Obtener todos las solicitudes de trámite",
+        "tags": ["Request"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitud obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "user_id": { "type": "string" },
+                    "createByname": { "type": "string" },
+                    "type_id": { "type": "string" },
+                    "carrera_id": { "type": "string" },
+                    "observation": { "type": "string" },
+                    "createdAt": { "type": "string", "format": "date-time" },
+                    "updatedAt": { "type": "string", "format": "date-time" },
+                    "status":{
+                      "type": "string",
+                      "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/requests/{id}/status":{
+      "patch": {
+        "summary": "Actualizar estado de la solicitud",
+        "tags": ["Request"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"],
+                    "description": "Nuevo estado de la solicitud"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { 
+                          "type": "string",
+                          "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Solicitud no encontrada" },
+          "500": { "description":"Error interno del servidor" }
+        }
+      }
+    },
+    "/requests/user/{userId}": {
+      "get": {
+        "summary": "Obtener todos las solicitudes de trámite por usuario",
+        "tags": ["Request"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID del usuario"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Solicitud obtenida exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "user_id": { "type": "string" },
+                    "createByname": { "type": "string" },
+                    "type_id": { "type": "string" },
+                    "carrera_id": { "type": "string" },
+                    "observation": { "type": "string" },
+                    "createdAt": { "type": "string", "format": "date-time" },
+                    "updatedAt": { "type": "string", "format": "date-time" },
+                    "status":{
+                      "type": "string",
+                      "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/requests/{requestId}/documents": {
+      "get": {
+        "summary": "Obtener documentos de una solicitud",
+        "tags": ["Documents"],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Documentos obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "request_id": { "type": "string" },
+                    "name_requeriments": { "type": "string" },
+                    "name_file": { "type": "string" },
+                    "router_file": { "type": "string" },
+                    "size_bytes": { "type": "string" },
+                    "createdAt": { "type": "string", "format": "date-time" },
+                    "updatedAt": { "type": "string", "format": "date-time" },
+                    "status":{
+                      "type": "string",
+                      "enum": ["Guardado"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      },
+      "post":{
+        "summary": "Cargar multiples documentos para una solicitud",
+        "tags": ["Documents"],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name_requeriments": {
+                    "type": "string",
+                    "description": "Nombre del archivos a cargar"
+                  },
+                  "documents": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Archivos PDF (máximo 10 archivos, 5MB cada uno)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Documentos cargados exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/requests/{requestId}/oneDocuments":{
+      "post":{
+        "summary": "Cargar un documento extra para una solicitud",
+        "tags": ["Documents"],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name_requeriments": {
+                    "type": "string",
+                    "description": "Nombre del archivo a cargar"
+                  },
+                  "document": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Archivo PDF (máximo 5MB)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Documento cargado exitosamente"  },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/requests/{requestId}/documents/{id}":{
+      "post":{
+        "summary": "Actualizar un documento de una solicitud",
+        "tags": ["Documents"],
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID del documento"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Nuevo archivo PDF (máximo 5MB)"
+                  },
+                  "name_requeriments": {
+                    "type": "string",
+                    "description": "Nuevo nombre del requerimiento"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Documento actualizado exitosamente" },
+          "400": { "description": "Datos inválidos" },
+          "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
     }
+
   }  
 }

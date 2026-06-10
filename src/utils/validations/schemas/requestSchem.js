@@ -1,0 +1,21 @@
+// utils/validations/schemas/requestSchem.js
+import { z } from 'zod';
+
+export const requestSchema = z.object({
+  user_id: z.string().uuid("Debe ser un UUID válido"),
+  createByname: z.string()
+    .min(3, "El nombre del creador debe tener al menos 3 caracteres")
+    .max(100, "El nombre del creador no puede superar los 100 caracteres")
+    .optional(),
+  type_id: z.string().uuid("Debe ser un UUID válido"),
+  carrera_id: z.string().uuid("Debe ser un UUID válido"),
+});
+
+export const observationSchema = z.object({
+  observation: z.string().max(500, "La observación no puede superar los 500 caracteres").optional().nullable(),
+  status: z.enum(['Pendiente', 'Aprobado', 'Rechazado']).optional()
+});
+
+export const updateStatusSchema = z.object({
+  status: z.enum(['Enviado', 'Revisando', 'Pendiente', 'Aprobado', 'Rechazado'])
+});

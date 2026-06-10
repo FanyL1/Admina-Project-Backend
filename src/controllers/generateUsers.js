@@ -23,7 +23,6 @@ const apellidos = [
   'Maldonado Vega', 'Franco Suárez', 'Peña Barrios', 'Molina Serrano', 'Delgado Padilla'
 ];
 
-
 const generarUsuarios = (cantidad) => {
   const usuarios = [];
   for (let i = 1; i <= cantidad; i++) {

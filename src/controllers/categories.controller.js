@@ -8,7 +8,7 @@ export const getCategories = async (req, res) => {
 
     return res.json({
       success: true,
-      message: "Categoria creada exitosamente",
+      message: "Categoria obtenida exitosamente",
       data: categories
     });
   } catch (error) {

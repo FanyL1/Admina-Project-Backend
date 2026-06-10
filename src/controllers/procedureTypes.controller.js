@@ -1,6 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { procedureTypeSchema } from '../utils/validations/schemas/procedureTypeSchem.js';
+import { success } from 'zod';
 
 // Obtener todos los tipos de trámites
 export const getProcedureTypes = async (req, res) => {
@@ -25,15 +26,24 @@ export const createProcedureType = async (req, res) => {
         details: validation.errors,
       });
     }
+    
+    const { name, requirements, category_id } = validation.data;
 
-    const { name, requirements } = validation.data;
     const newType = await prisma.typeProcedure.create({
       data: {
         name,
         requirements,
+        category_id
+      
       },
     });
-    res.status(201).json(newType);
+
+    return res.status(201).json({
+      success: true,
+      message: 'Tramite creado exitosamente',
+      data: newType
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al crear el tipo de trámite' });
@@ -52,6 +62,17 @@ export const updateProcedureType = async (req, res) => {
       });
     }
 
+    const existingType = await prisma.typeProcedure.findUnique({
+      where: { id }
+    });
+
+    if (!existingType) {
+      return res.status(404).json({
+        success: false,
+        error: 'Trámite no encontrado'
+      });
+    }
+
     const { name, requirements } = validation.data;
     const updatedType = await prisma.typeProcedure.update({
       where: { id: id},
@@ -60,9 +81,17 @@ export const updateProcedureType = async (req, res) => {
         requirements,
       },
     });
-    res.json(updatedType);
+    
+    return res.json({
+      success: true,
+      message: 'Tramite actualizado exitosamente',
+      data: updatedType
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al actualizar el tipo de trámite' });
+    return res.status(500).json({ 
+      success: false,
+      error: 'Error al actualizar el tipo de trámite' 
+    });
   }
 };

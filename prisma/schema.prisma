@@ -38,7 +38,8 @@ model User {
   status     String    @default("active") @db.VarChar
 
   role     Role     @relation(fields: [rol_id], references: [id])
-  requests Request[]
+  requests  Request[] @relation("userRequests")
+  reviews   Request[] @relation("userReviews")
   logs     Log[]
 
   @@map("users")
@@ -63,7 +64,7 @@ model Category {
   created_at DateTime @default(now()) @db.Timestamp(6)
   updated_at DateTime @updatedAt @db.Timestamp(6)
   status     String   @default("active") @db.VarChar
-  requests   Request[]
+  typeProcedure   TypeProcedure[]
 
   @@map("category")
   @@schema("core")
@@ -73,30 +74,33 @@ model TypeProcedure {
   id           String    @id @default(uuid()) @db.Uuid
   name         String   @unique @db.VarChar
   requirements Json 
+  category_id  String   @db.Uuid
   created_at   DateTime @default(now()) @db.Timestamp(6)
-  updated_at   DateTime @db.Timestamp(6)
+  updated_at   DateTime @updatedAt @db.Timestamp(6)
   status       String   @default("active") @db.VarChar
   requests     Request[]
+
+  category  Category      @relation(fields: [category_id], references: [id])
 
   @@map("type_procedure")
   @@schema("core")
 }
 
 model Request {
-  id           String    @id @default(uuid()) @db.Uuid
-  user_id      String    @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
+  user_id      String   @db.Uuid
   createByname String   @db.VarChar
-  category_id  String   @db.Uuid
   type_id      String   @db.Uuid
   carrera_id   String   @db.Uuid
-  observation  String?   @db.Text
+  observation  String?  @default("Sin observaciones") @db.Text
   created_at   DateTime @default(now()) @db.Timestamp(6)
   updated_at   DateTime @updatedAt @db.Timestamp(6)
-  status       String    @default("Enviado") @db.VarChar
+  status       String   @default("Enviado") @db.VarChar
+  revisor_id   String?  @db.Uuid
 
-  user      User          @relation(fields: [user_id], references: [id])
-  category  Category      @relation(fields: [category_id], references: [id])
-  type      TypeProcedure @relation(fields: [type_id], references: [id])
+  user     User    @relation("userRequests", fields: [user_id], references: [id])
+  revisor  User?   @relation("userReviews",fields: [revisor_id], references: [id])
+  type_procedure TypeProcedure @relation(fields: [type_id], references: [id])
   carrera   Carrera       @relation(fields: [carrera_id], references: [id])
   documents Document[]
   logs      Log[]
@@ -113,7 +117,7 @@ model Document {
   router_file       String   @db.VarChar
   size_bytes        BigInt?
   created_at        DateTime @default(now()) @db.Timestamp(6)
-  updated_at        DateTime @db.Timestamp(6)
+  updated_at        DateTime @updatedAt @db.Timestamp(6)
   status            String   @db.VarChar
 
   request Request? @relation(fields: [request_id], references: [id])

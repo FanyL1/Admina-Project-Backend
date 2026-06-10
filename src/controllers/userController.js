@@ -5,7 +5,7 @@ import { updateUserSchema, updateUserAdminSchema } from '../utils/validations/sc
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 
 // Obtener todos los usuarios
-const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
     try {
         const users = await prisma.user.findMany({
             select: {
@@ -41,7 +41,7 @@ const getAllUsers = async (req, res) => {
 };
 
 // Obtener un usuario por ID
-const getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
     try {
         const id = req.user?.id;
 
@@ -86,7 +86,7 @@ const getUserById = async (req, res) => {
 };
 
 // Actualizar usuario (1 o varios datos)
-const updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
     try {
 
         const validation = await validate(updateUserSchema, req.body);
@@ -175,7 +175,7 @@ const updateUser = async (req, res) => {
     }
 };
 //Falta Actualizar usuario (solo Superusuario)
-const updateBySuperUser = async (req, res) => {
+export const updateBySuperUser = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -262,7 +262,7 @@ const updateBySuperUser = async (req, res) => {
 };
 
 // cambiar estado (cambiar estado de active a inactive)
-const UpadateStatuseUser = async (req, res) => {
+export const UpadateStatuseUser = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -314,7 +314,7 @@ const UpadateStatuseUser = async (req, res) => {
 };
 
 // cambiar rol
-const UpadateRoleUser = async (req, res) => {
+export const UpadateRoleUser = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -373,7 +373,7 @@ const UpadateRoleUser = async (req, res) => {
 };
 
 // Obtener estudiantes
-const getStudent = async (req, res) => {
+export const getStudent = async (req, res) => {
     try {
 
         const roleStudent = await prisma.role.findUnique({
@@ -415,12 +415,3 @@ const getStudent = async (req, res) => {
     }
 };
 
-export default {
-    getAllUsers,
-    getUserById,
-    updateUser,
-    UpadateStatuseUser,
-    getStudent,
-    UpadateRoleUser,
-    updateBySuperUser
-}

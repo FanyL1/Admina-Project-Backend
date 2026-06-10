@@ -62,7 +62,9 @@ const singUp = async (req, res) => {
                 rol_id: roleId
             }
         });
-        res.status(201).json({ message: "Usuario creado", user });
+        return res.status(201).json({ 
+          message: "Usuario creado"
+        });
     } catch (error) {
         if (error.code === 'P2002') {
             return res.status(400).json({ error: "Usuario ya está registrado" });
