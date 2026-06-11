@@ -6,13 +6,46 @@ import { success } from 'zod';
 // Obtener todos los tipos de trámites
 export const getProcedureTypes = async (req, res) => {
   try {
-    const types = await prisma.typeProcedure.findMany({
-     // where: { status: 'active' },
+    
+// Validar tipo de trámite (usando SQL para evitar error del JSON)
+    const typeResult = await prisma.$queryRaw`
+      SELECT 
+        id, 
+        name, 
+        category_id,
+        status,
+        requirements::text as requirements
+      FROM core.type_procedure 
+      WHERE status = active
+    `;
+    
+    if (typeResult.length === 0) {
+      return res.status(404).json({
+        success: true,
+        error: 'No hay tramites registrados'
+      });
+    }
+    
+    // Parsear requirements de texto a JSON
+    const typeData = {
+      id: typeResult[0].id,
+      name: typeResult[0].name,
+      category_id: typeResult[0].category_id,
+      status: typeResult[0].status,
+      requirements: typeResult[0].requirements ? JSON.parse(typeResult[0].requirements) : []
+    };
+    return res.json({
+      success: true,
+      message: 'Tramites Obtenidos',
+      data: typeData
     });
-    res.json(types);
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Error al obtener los tipos de trámites' });
+    return res.status(500).json({ 
+      success: false,
+      error: 'Error al obtener los tipos de trámites' 
+    });
   }
 };
 

@@ -4,7 +4,7 @@ import {  getProcedureTypes,  createProcedureType,  updateProcedureType } from '
 
 const router = Router();
 
-router.get('/',restrictTo('Administrativo','Superusuario'), getProcedureTypes);
+router.get('/',restrictTo('Estudiante','Administrativo','Superusuario'), getProcedureTypes);
 router.post('/', restrictTo('Administrativo','Superusuario'), createProcedureType);
 router.patch('/:id', restrictTo('Administrativo','Superusuario'), updateProcedureType);
 

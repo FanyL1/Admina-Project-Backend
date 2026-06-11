@@ -4,7 +4,7 @@ import {   getCategories,  createCategory,  updateCategory } from '../controller
 
 const router = Router();
 
-router.get('/', restrictTo('Administrativo','Superusuario'), getCategories);
+router.get('/', restrictTo('Estudiante','Administrativo','Superusuario'), getCategories);
 router.post('/',restrictTo('Administrativo','Superusuario'), createCategory);
 router.patch('/:id',restrictTo('Administrativo','Superusuario'), updateCategory);
 

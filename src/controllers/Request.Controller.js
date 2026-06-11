@@ -207,7 +207,6 @@ export const createRequest = async (req, res) => {
       });
     }
 
-    console.log('Validaciones de existencia pasadas, creando solicitud...');
     // Crear la solicitud
     const newRequest = await prisma.request.create({
       data: {

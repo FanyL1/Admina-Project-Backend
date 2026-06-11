@@ -40,7 +40,6 @@ const singUp = async (req, res) => {
                 error: 'El email ya está registrado',
             });
         }
-        console.log(email);
 
         const existingDNI = await prisma.user.findUnique({
             where: { dni }
@@ -96,7 +95,11 @@ const login = async (req, res) => {
             },
         });
 
-        if (!user || user.status !== 'active') {
+        if (user.status == 'inactive' ) {
+            return res.status(401).json({ error: 'Usuario Inactivo' });
+        }
+        console.log(user.status)
+        if (!user) {
             return res.status(401).json({ error: 'Credenciales invalidas' });
         }
 
