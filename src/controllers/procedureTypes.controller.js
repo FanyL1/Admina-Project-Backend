@@ -16,7 +16,7 @@ export const getProcedureTypes = async (req, res) => {
         status,
         requirements::text as requirements
       FROM core.type_procedure 
-      WHERE status = active
+      WHERE status = 'active'
     `;
     
     if (typeResult.length === 0) {
@@ -26,14 +26,15 @@ export const getProcedureTypes = async (req, res) => {
       });
     }
     
-    // Parsear requirements de texto a JSON
-    const typeData = {
-      id: typeResult[0].id,
-      name: typeResult[0].name,
-      category_id: typeResult[0].category_id,
-      status: typeResult[0].status,
-      requirements: typeResult[0].requirements ? JSON.parse(typeResult[0].requirements) : []
-    };
+    const typeData = typeResult.map((item) => ({
+      id: item.id,
+      name: item.name,
+      category_id: item.category_id,
+      status: item.status,
+      requirements: item.requirements ? JSON.parse(item.requirements) : []
+    }));
+
+    
     return res.json({
       success: true,
       message: 'Tramites Obtenidos',
