@@ -1,6 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
+import { createAuditLog } from '../utils/auditLog.js';
 
 export const getCategories = async (req, res) => {
   try {
@@ -32,6 +33,14 @@ export const createCategory = async (req, res) => {
       data: { name }
     });
 
+    await createAuditLog({
+      user: req.user,
+      action: 'CREO Categoría',
+      description: `"${newCategory.name}"`,
+      resourceType: 'Category',
+      resourceId: newCategory.id
+    });
+
     return res.status(201).json({
       success: true,
       message: "Categoria creada exitosamente",
@@ -59,6 +68,14 @@ export const updateCategory = async (req, res) => {
     const updatedCategory = await prisma.category.update({
       where: { id: id },
       data: { name },
+    });
+
+    await createAuditLog({
+      user: req.user,
+      action: 'MODIFICO Categoría',
+      description: `"${updatedCategory.name}"`,
+      resourceType: 'Category',
+      resourceId: updatedCategory.id
     });
     
      return res.json({

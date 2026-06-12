@@ -1,6 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
+import { createAuditLog } from '../utils/auditLog.js';
 
 // Este endpoint es para desarrollo no está disponible la 
 // opción de crear roles en el producto final
@@ -16,6 +17,14 @@ const createRole = async (req, res) => {
         const { name } = validation.data;
         const role = await prisma.role.create({
             data: { name },
+        });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'CREO Rol',
+          description: `"${role.name}"`,
+          resourceType: 'Role',
+          resourceId: role.id
         });
 
         res.status(200).json({ message: 'Rol creado', role });
@@ -70,6 +79,14 @@ const UpdateRole = async (req, res) => {
                 id: true,
                 name: true,
             },
+        });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'MODIFICO Rol',
+          description: `"${updateRole.name}"`,
+          resourceType: 'Role',
+          resourceId: updateRole.id
         });
 
         res.status(200).json({

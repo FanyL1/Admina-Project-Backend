@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { validate } from '../utils/validations/validate.js';
 import { updateUserSchema, updateUserAdminSchema } from '../utils/validations/schemas/updateUserSchem.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
+import { createAuditLog, isPrivilegedRole } from '../utils/auditLog.js';
 
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
@@ -161,6 +162,16 @@ export const updateUser = async (req, res) => {
             }
         });
 
+        if (isPrivilegedRole(req.user)) {
+          await createAuditLog({
+            user: req.user,
+            action: 'MODIFICO Usuario',
+            description: `(id: ${updatedUser.id})`,
+            resourceType: 'User',
+            resourceId: updatedUser.id
+          });
+        }
+
         res.status(200).json({
             success: true,
             message: 'Usuario actualizado exitosamente',
@@ -247,6 +258,15 @@ export const updateBySuperUser = async (req, res) => {
                 }
             }
         });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'MODIFICO Usuario',
+          description: `(id: ${updatedUser.id})`,
+          resourceType: 'User',
+          resourceId: updatedUser.id
+        });
+
         res.status(200).json({
             success: true,
             message: 'Usuario actualizado exitosamente',
@@ -285,6 +305,14 @@ export const UpadateStatuseUser = async (req, res) => {
                 }
             });
 
+            await createAuditLog({
+              user: req.user,
+              action: 'ACTIVO Usuario',
+              description: `(id: ${reactivedUser.id})`,
+              resourceType: 'User',
+              resourceId: reactivedUser.id
+            });
+
             return  res.status(200).json({
                 success: true,
                 message: 'Usuario activado exitosamente',
@@ -297,6 +325,14 @@ export const UpadateStatuseUser = async (req, res) => {
             data: {
                 status: 'inactive'
             }
+        });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'DESACTIVO Usuario',
+          description: `(id: ${deletedUser.id})`,
+          resourceType: 'User',
+          resourceId: deletedUser.id
         });
 
         res.status(200).json({
@@ -356,6 +392,14 @@ export const UpadateRoleUser = async (req, res) => {
             include: {
                 role: true 
             }
+        });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'CAMBIO ROL Usuario',
+          description: `(id: ${updateRole.id}) -> ${searchRole.name}`,
+          resourceType: 'User',
+          resourceId: updateRole.id
         });
 
         res.status(200).json({

@@ -2,6 +2,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { requestSchema, observationSchema, updateStatusSchema } from '../utils/validations/schemas/requestSchem.js';
+import { createAuditLog, isPrivilegedRole } from '../utils/auditLog.js';
 
 // Obtener todas las solicitudes
 export const getRequests = async (req, res) => {
@@ -225,6 +226,18 @@ export const createRequest = async (req, res) => {
       ...newRequest,
       type_procedure: typeData
     };
+
+    if (isPrivilegedRole(req.user)) {
+      await createAuditLog({
+        user: req.user,
+        action: 'CREO Solicitud',
+        description: `(id: ${newRequest.id})`,
+        resourceType: 'Request',
+        resourceId: newRequest.id,
+        requestId: newRequest.id
+      });
+    }
+
     console.log('Solicitud creada exitosamente:', responseData);
     return res.status(201).json({
       success: true,
@@ -329,6 +342,23 @@ export const updateRequestStatus = async (req, res) => {
       where: { id },
       data: { status },
     });
+
+    if (isPrivilegedRole(req.user)) {
+      const actionLabel = status.toLowerCase().includes('rech')
+        ? 'RECHAZO Solicitud'
+        : status.toLowerCase().includes('apro')
+          ? 'APROBO Solicitud'
+          : 'CAMBIO ESTADO Solicitud';
+
+      await createAuditLog({
+        user: req.user,
+        action: actionLabel,
+        description: `(id: ${updatedRequest.id}) - Estado: ${updatedRequest.status}`,
+        resourceType: 'Request',
+        resourceId: updatedRequest.id,
+        requestId: updatedRequest.id
+      });
+    }
 
     return res.json({
       success: true,

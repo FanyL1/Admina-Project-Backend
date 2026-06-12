@@ -1,6 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem, UpdateSchem } from '../utils/validations/schemas/onlyNameSchem.js';
+import { createAuditLog } from '../utils/auditLog.js';
 
 // Crear carrera
 const addDegree = async (req, res) => {
@@ -30,6 +31,14 @@ const addDegree = async (req, res) => {
                 name
             }
         })
+
+        await createAuditLog({
+          user: req.user,
+          action: 'CREO Carrera',
+          description: `"${Degree.name}"`,
+          resourceType: 'Carrera',
+          resourceId: Degree.id
+        });
         
         res.status(201).json({message: 'Carrera creada', Degree})
     } catch (error) {
@@ -91,6 +100,14 @@ const updateDegree = async (req, res) => {
                 name: true,
                 status: true,
             }
+        });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'MODIFICO Carrera',
+          description: `"${updatedDegree.name}"`,
+          resourceType: 'Carrera',
+          resourceId: updatedDegree.id
         });
 
         res.status(200).json({
