@@ -791,7 +791,8 @@
                     "type": "object",
                     "description": "Requisitos del trámite en formato JSON",
                     "example": {
-                      "documents": ["Cédula", "Constancia de Estudio"]
+                      "documents": ["Cédula", "Constancia de Estudio"],
+                      "promedio": [7]
                     }
                   },
                   "category_id": {
@@ -1532,6 +1533,38 @@
           "200": { "description": "Documento actualizado exitosamente" },
           "400": { "description": "Datos inválidos" },
           "404": { "description": "Solicitud no encontrada" },
+          "401": { "description": "No autorizado" },
+          "500": { "description": "Error del servidor" }
+        }
+      }
+    },
+    "/audit-logs":{
+      "get": {
+        "summary": "Obtener Log de aufitoria",
+        "tags": ["Logs"],
+        "responses": {
+          "200": {
+            "description": "Logs obtenidos exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "string" },
+                    "date": { "type": "string","format": "date-time" },
+                    "user_id": { "type": "string" },
+                    "action": { "type": "string" },
+                    "request_id": { "type": "string" },
+                    "description": { "type": "string" },
+                    "message": { "type": "string"},
+                    "resource_id": { "type": "string"},
+                    "resource_type": { "type": "string"}
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Logs no encontrados" },
           "401": { "description": "No autorizado" },
           "500": { "description": "Error del servidor" }
         }

@@ -42,7 +42,6 @@ export const getProcedureTypes = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
     return res.status(500).json({ 
       success: false,
       error: 'Error al obtener los tipos de trámites' 
@@ -79,8 +78,10 @@ export const createProcedureType = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error al crear el tipo de trámite' });
+    return res.status(500).json({ 
+      success: false,
+      error: 'Error al crear el tipo de trámite' 
+    });
   }
 };
 

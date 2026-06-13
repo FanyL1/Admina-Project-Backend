@@ -3,7 +3,7 @@ import { protect, restrictTo} from "../Middleware/auth.js";
 import AuthController from '../controllers/authController.js';
 import roleController from '../controllers/roleController.js';
 import carreraController from '../controllers/degreeController.js';
-import auditController from '../controllers/auditController.js';
+import {getAuditLogs} from '../controllers/auditController.js'
 import userRouter from './user.routes.js';
 import categoriesRoutes from './categories.routes.js';
 import procedureTypesRoutes from './procedureTypes.routes.js';
@@ -36,7 +36,7 @@ router.use('/users', userRouter);
 router.post('/role', restrictTo('Superusuario'), roleController.createRole);
 router.get('/role',restrictTo('Superusuario'), roleController.getAllRoles);
 router.patch('/role/:id',restrictTo('Superusuario'), roleController.UpdateRole);
-router.get('/audit-logs', restrictTo('Administrativo','Superusuario'), auditController.getAuditLogs);
+router.get('/audit-logs', restrictTo('Administrativo','Superusuario'),getAuditLogs);
 
 //Carerras
 router.get('/degree', restrictTo('Superusuario'), carreraController.allDegree );  
