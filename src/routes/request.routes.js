@@ -1,5 +1,5 @@
 import express from 'express';
-import {getRequests, getOneRequest, getRequestsByUser, createRequest, getAdminRequests, updateRequestStatus} from '../controllers/Request.Controller.js';
+import {getRequests, getOneRequest, getRequestsByUser, createRequest, getAdminRequests, updateRequestStatus, AddObservationRequest} from '../controllers/Request.Controller.js';
 import {getDocumentsByRequest, uploadDocuments, updateDocumentFile, addDocumentToRequest} from '../controllers/documents.Controller.js';
 import { uploadMultipleFiles, uploadSingleFile, handleMulterError } from '../Middleware/upload.js';
 
@@ -9,9 +9,10 @@ const router = express.Router();
 
 router.get('/', getRequests);
 router.get('/admin/:revisorId', getAdminRequests);
-router.get('/:id', getOneRequest);
 router.get('/user/:userId', getRequestsByUser); 
+router.get('/:id', getOneRequest);
 router.post('/', createRequest);
+router.patch('/:id', AddObservationRequest);
 router.patch('/:id/status', updateRequestStatus);
 
 

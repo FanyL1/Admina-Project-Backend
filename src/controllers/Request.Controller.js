@@ -7,7 +7,22 @@ import { createAuditLog, isPrivilegedRole } from '../utils/auditLog.js';
 // Obtener todas las solicitudes
 export const getRequests = async (req, res) => {
   try {
-    const requests = await prisma.request.findMany({});
+    const requests = await prisma.request.findMany({
+      orderBy: { created_at: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            dni: true,
+            email: true
+          }
+        },
+        type_procedure: true,
+        carrera: true,
+      },
+    });
 
     return res.json({
       success: true,
@@ -28,10 +43,24 @@ export const getRequests = async (req, res) => {
 export const getAdminRequests = async (req, res) => {
   try {
 
-    const {user_id} =req.params
+    const { revisorId } = req.params
 
     const requests = await prisma.request.findMany({
-       where: { revisor_id: user_id  }
+      where: { revisor_id: revisorId },
+      orderBy: { created_at: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            dni: true,
+            email: true
+          }
+        },
+        type_procedure: true,
+        carrera: true,
+      },
     });
 
     return res.json({
@@ -56,22 +85,18 @@ export const getOneRequest = async (req, res) => {
 
     const request = await prisma.request.findFirst({
       where: { id: id },
-       include: {
+      include: {
         user: {
           select: {
             id: true,
             name: true,
             lastname: true,
+            dni: true,
             email: true
           }
         },
-        createByname: true,
-        category: true,
-        type: true,
+        type_procedure: true,
         carrera: true,
-        observation: true,
-        updated_at: true,
-        status: true,
       },
     });
 
@@ -102,15 +127,11 @@ export const getRequestsByUser = async (req, res) => {
     const { userId } = req.params;
 
     const requests = await prisma.request.findMany({
-      where: { id: userId },
-       include: {
-        createByname: true,
-        category: true,
-        type: true,
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' },
+      include: {
+        type_procedure: true,
         carrera: true,
-        observation: true,
-        updated_at: true,
-        status: true,
       }
     });
 
@@ -133,7 +154,7 @@ export const getRequestsByUser = async (req, res) => {
 export const createRequest = async (req, res) => {
  
   try {
-    let { user_id, createByname, type_id, carrera_id } = req.body;
+    let { user_id, createByname, type_id, carrera_id, observation } = req.body;
 
     if (!createByname || createByname === 'undefined' || createByname === 'null') {
       createByname = "Mismo Usuario";
@@ -144,6 +165,7 @@ export const createRequest = async (req, res) => {
       createByname,
       type_id,
       carrera_id,
+      observation,
     };
 
     const validation = await validate(requestSchema, requestData);
@@ -214,7 +236,8 @@ export const createRequest = async (req, res) => {
         user_id: requestData.user_id,
         createByname: requestData.createByname,
         type_id: requestData.type_id,
-        carrera_id: requestData.carrera_id
+        carrera_id: requestData.carrera_id,
+        observation: requestData.observation || undefined,
       },
       include: {
         user: {select: { id: true, name: true,  lastname: true,  email: true }},
