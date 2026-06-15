@@ -39,7 +39,7 @@ router.patch('/role/:id',restrictTo('Superusuario'), roleController.UpdateRole);
 router.get('/audit-logs', restrictTo('Administrativo','Superusuario'),getAuditLogs);
 
 //Carerras
-router.get('/degree', restrictTo('Superusuario'), carreraController.allDegree );  
+router.get('/degree', restrictTo('Estudiante','Administrativo','Superusuario'), carreraController.allDegree );  
 router.post('/degree', restrictTo('Superusuario'), carreraController.addDegree); 
 router.patch('/degree/:id', restrictTo('Superusuario'), carreraController.updateDegree);
 

@@ -60,13 +60,19 @@ export const uploadDocuments = async (req, res) => {
     for (const file of files) {
       const document = await prisma.document.create({
         data: {
-          request_id: requestId,
+          request: {
+            connect: { id: requestId }  
+        },
           name_requeriments: file.originalname, // Nombre original del archivo
           router_file: `/uploads/documents/${file.filename}`, // Ruta del archivo
-          size_byte: file.size // Tamaño en bytes
+          size_bytes: file.size // Tamaño en bytes
         }
       });
-      documents.push(document);
+
+      documents.push({
+        ...document,
+        size_bytes: document.size_bytes ? Number(document.size_bytes) : null
+      });
     }
 
     return res.status(201).json({
@@ -198,18 +204,27 @@ export const addDocumentToRequest = async (req, res) => {
     // Crear el nuevo documento
     const newDocument = await prisma.document.create({
       data: {
-        request_id: requestId,
+        request:{
+          connect:{  id: requestId }
+        },
         name_requeriments: name_requeriments,
         name_file: file.filename,
         router_file: `/uploads/documents/${file.filename}`,
-        size_byte: file.size
+        size_bytes: file.size
       }
     });
+
+    const documents = []
+     // Convertir BigInt a Number antes de enviar
+      documents.push({
+        ...newDocument,
+        size_bytes: newDocument.size_bytes ? Number(newDocument.size_bytes) : null
+      });
 
     return res.status(201).json({
       success: true,
       message: 'Requisito agregado exitosamente',
-      data: newDocument
+      data: documents
     });
 
   } catch (error) {

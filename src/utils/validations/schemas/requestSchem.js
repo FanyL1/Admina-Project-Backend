@@ -7,6 +7,9 @@ export const requestSchema = z.object({
     .min(3, "El nombre del creador debe tener al menos 3 caracteres")
     .max(100, "El nombre del creador no puede superar los 100 caracteres")
     .optional(),
+  createByDNI: z.string()
+    .regex(/^\d{1,8}$/, "Cedula inválida")
+    .optional(),
   type_id: z.string().uuid("Debe ser un UUID valido"),
   carrera_id: z.string().uuid("Debe ser un UUID valido"),
   observation: z.string().max(500, "La observacion no puede superar los 500 caracteres").optional().nullable(),

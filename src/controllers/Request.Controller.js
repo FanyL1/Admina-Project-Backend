@@ -154,10 +154,13 @@ export const getRequestsByUser = async (req, res) => {
 export const createRequest = async (req, res) => {
  
   try {
-    let { user_id, createByname, type_id, carrera_id, observation } = req.body;
+    let { user_id, createByname,createByDNI, type_id, carrera_id, observation } = req.body;
 
     if (!createByname || createByname === 'undefined' || createByname === 'null') {
-      createByname = "Mismo Usuario";
+      createByname = "No Aplica";
+    }
+    if (!createByDNI || createByDNI === 'undefined' || createByDNI === 'null') {
+      createByDNI = "0";
     }
 
     const requestData = {
@@ -166,10 +169,12 @@ export const createRequest = async (req, res) => {
       type_id,
       carrera_id,
       observation,
+      createByDNI,
     };
 
     const validation = await validate(requestSchema, requestData);
     if (!validation.success) {
+      console.log(validation.errors)
       return res.status(400).json({
         success: false,
         error: 'Error de validación',
@@ -235,6 +240,7 @@ export const createRequest = async (req, res) => {
       data: {
         user_id: requestData.user_id,
         createByname: requestData.createByname,
+        createByDNI:requestData.createByDNI,
         type_id: requestData.type_id,
         carrera_id: requestData.carrera_id,
         observation: requestData.observation || undefined,
@@ -260,7 +266,7 @@ export const createRequest = async (req, res) => {
       });
     }
 
-    console.log('Solicitud creada exitosamente:', responseData);
+    
     return res.status(201).json({
       success: true,
       message: "Solicitud creada exitosamente",

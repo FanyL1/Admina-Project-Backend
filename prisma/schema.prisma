@@ -90,6 +90,7 @@ model Request {
   id           String   @id @default(uuid()) @db.Uuid
   user_id      String   @db.Uuid
   createByname String   @db.VarChar
+  createByDNI String    @db.VarChar
   type_id      String   @db.Uuid
   carrera_id   String   @db.Uuid
   observation  String?  @default("Sin observaciones") @db.Text
@@ -118,7 +119,7 @@ model Document {
   size_bytes        BigInt?
   created_at        DateTime @default(now()) @db.Timestamp(6)
   updated_at        DateTime @updatedAt @db.Timestamp(6)
-  status            String   @db.VarChar
+  status            String   @default("active") @db.VarChar
 
   request Request? @relation(fields: [request_id], references: [id])
 

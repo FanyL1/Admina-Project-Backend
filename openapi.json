@@ -1002,7 +1002,11 @@
                   },
                   "createByname": { 
                     "type": "string", 
-                    "description": "Nombre del creador (si es undefined se guarda 'Mismo Usuario')" 
+                    "description": "Nombre del creador (si es undefined se guarda 'No aplica')" 
+                  },
+                  "createByDNI": { 
+                    "type": "string", 
+                    "description": "Cedula del creador (si es undefined se guarda 'No aplica')" 
                   },
                   "type_id": { 
                     "type": "string", 
@@ -1096,6 +1100,7 @@
                           "id": { "type": "string" },
                           "user_id": { "type": "string" },
                           "createByname": { "type": "string" },
+                          "createByDNI": { "type": "string" },
                           "type_id": { "type": "string" },
                           "carrera_id": { "type": "string" },
                           "observation": { "type": "string" },
@@ -1177,6 +1182,7 @@
                           "id": { "type": "string" },
                           "user_id": { "type": "string" },
                           "createByname": { "type": "string" },
+                          "createByDNI": { "type": "string" },
                           "type_id": { "type": "string" },
                           "carrera_id": { "type": "string" },
                           "observation": { "type": "string" },
@@ -1231,6 +1237,7 @@
                     "id": { "type": "string" },
                     "user_id": { "type": "string" },
                     "createByname": { "type": "string" },
+                    "createByDNI": { "type": "string" },
                     "type_id": { "type": "string" },
                     "carrera_id": { "type": "string" },
                     "observation": { "type": "string" },
@@ -1337,6 +1344,7 @@
                     "id": { "type": "string" },
                     "user_id": { "type": "string" },
                     "createByname": { "type": "string" },
+                    "createByDNI": { "type": "string" },
                     "type_id": { "type": "string" },
                     "carrera_id": { "type": "string" },
                     "observation": { "type": "string" },
