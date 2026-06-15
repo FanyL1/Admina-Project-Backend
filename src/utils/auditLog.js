@@ -19,19 +19,15 @@ const getRoleName = (user) => {
   return user?.role?.name || user?.rol?.name || 'Desconocido';
 };
 
-export const createAuditLog = async ({ user, action, description, resourceType = null, resourceId = null, requestId = null }) => {
+export const createAuditLog = async ({ user, action, description, resourceType = null, resourceId = null }) => {
   try {
-    const roleName = getRoleName(user);
-    const message = `${user.name} ${user.lastname} : ${roleName} - ${formatAuditDate(new Date())} - ${action.toUpperCase()} ${description}`;
     return await prisma.log.create({
       data: {
         user_id: user.id,
         action: action.toUpperCase(),
-        resource_type: resourceType,
-        resource_id: resourceId,
+        resourceType,
+        resourceId,
         description,
-        message,
-        request_id: requestId,
       },
     });
   } catch (error) {

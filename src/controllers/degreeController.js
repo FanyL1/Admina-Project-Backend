@@ -35,7 +35,7 @@ const addDegree = async (req, res) => {
         await createAuditLog({
           user: req.user,
           action: 'CREO Carrera',
-          description: `"${Degree.name}"`,
+          description: Degree.name,
           resourceType: 'Carrera',
           resourceId: Degree.id
         });
@@ -105,7 +105,7 @@ const updateDegree = async (req, res) => {
         await createAuditLog({
           user: req.user,
           action: 'MODIFICO Carrera',
-          description: `"${updatedDegree.name}"`,
+          description: updatedDegree.name,
           resourceType: 'Carrera',
           resourceId: updatedDegree.id
         });

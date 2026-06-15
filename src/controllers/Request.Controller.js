@@ -257,7 +257,6 @@ export const createRequest = async (req, res) => {
         description: `(id: ${newRequest.id})`,
         resourceType: 'Request',
         resourceId: newRequest.id,
-        requestId: newRequest.id
       });
     }
 
@@ -379,7 +378,6 @@ export const updateRequestStatus = async (req, res) => {
         description: `(id: ${updatedRequest.id}) - Estado: ${updatedRequest.status}`,
         resourceType: 'Request',
         resourceId: updatedRequest.id,
-        requestId: updatedRequest.id
       });
     }
 

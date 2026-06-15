@@ -22,7 +22,7 @@ const createRole = async (req, res) => {
         await createAuditLog({
           user: req.user,
           action: 'CREO Rol',
-          description: `"${role.name}"`,
+          description: role.name,
           resourceType: 'Role',
           resourceId: role.id
         });
@@ -84,7 +84,7 @@ const UpdateRole = async (req, res) => {
         await createAuditLog({
           user: req.user,
           action: 'MODIFICO Rol',
-          description: `"${updateRole.name}"`,
+          description: updateRole.name,
           resourceType: 'Role',
           resourceId: updateRole.id
         });

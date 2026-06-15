@@ -36,7 +36,7 @@ export const createCategory = async (req, res) => {
     await createAuditLog({
       user: req.user,
       action: 'CREO Categoría',
-      description: `"${newCategory.name}"`,
+      description: newCategory.name,
       resourceType: 'Category',
       resourceId: newCategory.id
     });
@@ -73,7 +73,7 @@ export const updateCategory = async (req, res) => {
     await createAuditLog({
       user: req.user,
       action: 'MODIFICO Categoría',
-      description: `"${updatedCategory.name}"`,
+      description: updatedCategory.name,
       resourceType: 'Category',
       resourceId: updatedCategory.id
     });

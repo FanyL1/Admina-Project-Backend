@@ -103,7 +103,7 @@ model Request {
   type_procedure TypeProcedure @relation(fields: [type_id], references: [id])
   carrera   Carrera       @relation(fields: [carrera_id], references: [id])
   documents Document[]
-  logs      Log[]
+  
 
   @@map("request")
   @@schema("core")
@@ -129,18 +129,15 @@ model Document {
 // --- SCHEMA: AUDIT ---
 
 model Log {
-  id            String   @id @default(uuid()) @db.Uuid
-  date          DateTime @default(now()) @db.Timestamp(6)
-  user_id       String   @db.Uuid
-  action        String   @db.VarChar
-  resource_type String?  @db.VarChar
-  resource_id   String?  @db.Uuid
-  description   String   @db.Text
-  message       String   @db.Text
-  request_id    String?  @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
+  date         DateTime @default(now()) @db.Timestamp(6)
+  user_id      String   @db.Uuid
+  action       String   @db.VarChar
+  resourceType String?  @map("resource_type") @db.VarChar
+  resourceId   String?  @map("resource_id") @db.Uuid
+  description  String   @db.Text
 
-  user    User     @relation(fields: [user_id], references: [id])
-  request Request? @relation(fields: [request_id], references: [id])
+  user User @relation(fields: [user_id], references: [id])
 
   @@map("logs")
   @@schema("audit")
