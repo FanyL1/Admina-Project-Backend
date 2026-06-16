@@ -1,7 +1,6 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
-import { procedureTypeSchema } from '../utils/validations/schemas/procedureTypeSchem.js';
-import { success } from 'zod';
+import { procedureTypeSchema, updateProcedureTypeSchema } from '../utils/validations/schemas/procedureTypeSchem.js';
 
 // Obtener todos los tipos de trámites
 export const getProcedureTypes = async (req, res) => {
@@ -16,7 +15,7 @@ export const getProcedureTypes = async (req, res) => {
         status,
         requirements::text as requirements
       FROM core.type_procedure 
-      WHERE status = 'active'
+      ORDER BY created_at DESC
     `;
     
     if (typeResult.length === 0) {
@@ -89,7 +88,7 @@ export const createProcedureType = async (req, res) => {
 export const updateProcedureType = async (req, res) => {
   try {
     const { id } = req.params;
-    const validation = await validate(procedureTypeSchema, req.body);
+    const validation = await validate(updateProcedureTypeSchema, req.body);
     if (!validation.success) {
       return res.status(400).json({
         error: 'Error de validación',
@@ -108,12 +107,14 @@ export const updateProcedureType = async (req, res) => {
       });
     }
 
-    const { name, requirements } = validation.data;
+    const { name, requirements, category_id, status } = validation.data;
     const updatedType = await prisma.typeProcedure.update({
       where: { id: id},
       data: {
-        name,
-        requirements,
+        ...(name ? { name } : {}),
+        ...(requirements ? { requirements } : {}),
+        ...(category_id ? { category_id } : {}),
+        ...(status ? { status } : {}),
       },
     });
     
