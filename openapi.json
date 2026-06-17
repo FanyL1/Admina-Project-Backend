@@ -871,7 +871,7 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": ["name"],
+                "required": ["name","requirements"],
                 "properties": {
                   "name": {
                     "type": "string",

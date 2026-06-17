@@ -3,7 +3,7 @@ import { restrictTo } from '../Middleware/auth.js';
 import {  getProcedureTypes,  createProcedureType,  updateProcedureType, updateStatusProcedureType } from '../controllers/procedureTypes.controller.js';
 
 const router = Router();
-console.log('Router Type')
+
 router.get('/',restrictTo('Estudiante','Administrativo','Superusuario'), getProcedureTypes);
 router.post('/', restrictTo('Administrativo','Superusuario'), createProcedureType);
 router.patch('/:id', restrictTo('Administrativo','Superusuario'), updateProcedureType);

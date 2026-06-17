@@ -1,6 +1,8 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { procedureTypeSchema, updateProcedureTypeSchema } from '../utils/validations/schemas/procedureTypeSchem.js';
+import { success } from 'zod';
+import { createAuditLog } from '../utils/auditLog.js';
 
 // Obtener todos los tipos de trámites
 export const getProcedureTypes = async (req, res) => {
@@ -52,6 +54,7 @@ export const getProcedureTypes = async (req, res) => {
 // Crear un tipo de trámite (Aquí guardamos el JSON)
 export const createProcedureType = async (req, res) => {
   try {
+    
     const validation = await validate(procedureTypeSchema, req.body);
     if (!validation.success) {
       return res.status(400).json({
@@ -59,18 +62,32 @@ export const createProcedureType = async (req, res) => {
         details: validation.errors,
       });
     }
-    
     const { name, requirements, category_id } = validation.data;
+
+    const existingName = await prisma.typeProcedure.findFirst({
+      where:{ name }
+    })
+
+    if (existingName) {
+      return res.status(404).json({
+        success: false,
+        message: 'Este tramite ya existe, verifique su existencia o cambie el nombre'
+      })
+    }
 
     const newType = await prisma.typeProcedure.create({
       data: {
         name,
-        requirements,
+        requirements:{
+          documents: requirements.documents || [],
+          promedio: requirements.promedio ?? 0 
+        },
         category_id
       
       },
     });
 
+    console.log('Datos a enviar a de NEw:', newType);
     await createAuditLog({
       user: req.user,
       action: 'CREO Tramite',
@@ -86,9 +103,10 @@ export const createProcedureType = async (req, res) => {
     });
 
   } catch (error) {
+    console.error(error)
     return res.status(500).json({ 
       success: false,
-      error: 'Error al crear el tipo de trámite' 
+      error: 'Error al crear trámite' 
     });
   }
 };

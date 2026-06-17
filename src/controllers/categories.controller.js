@@ -123,7 +123,7 @@ export const updateStatusCategory = async (req, res) => {
       });
       return res.json({
         success: true,
-        message: 'Carrera actualizada',
+        message: 'Categoria actualizada',
         data: updatedCategory
       })
     }
