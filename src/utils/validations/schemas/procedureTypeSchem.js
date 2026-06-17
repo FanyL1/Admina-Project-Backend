@@ -9,6 +9,8 @@ export const procedureTypeSchema = z.object({
     .refine(value => typeof value === 'object' && value !== null, {
       message: 'Los requisitos deben enviarse como un objeto JSON válido',
     }),
+  category_id: z.string().uuid('La categoria no es valida'),
+  status: z.enum(['active', 'inactive']).optional(),
 });
 
 export const updateProcedureTypeSchema = procedureTypeSchema.partial();
