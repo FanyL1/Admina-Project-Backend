@@ -2,6 +2,7 @@ import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem, UpdateSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 import { createAuditLog } from '../utils/auditLog.js';
+import { success } from 'zod';
 
 // Crear carrera
 const addDegree = async (req, res) => {
@@ -86,11 +87,10 @@ const updateDegree = async (req, res) => {
         }
 
         const { id } = req.params;
-        const { name, status } = validation.data;
+        const { name} = validation.data;
 
         const updateData = {};
         if (name !== undefined) updateData.name = name;
-        if (status !== undefined) updateData.status = status;
 
         const updatedDegree = await prisma.carrera.update({
             where: { id },
@@ -123,8 +123,86 @@ const updateDegree = async (req, res) => {
     }
 }
 
+// Este endpoint es para modificar el estado de la carrera
+const updateStatusDegree = async (req, res) => {
+    try {
+        
+        const {id} = req.params
+
+        const existingDegree = await prisma.carrera.findFirst({
+            where:{id}
+        })
+        if (!existingDegree) {
+            return res.status(404).json({
+                success: false,
+                error: 'Carrera no encontrada'
+            })
+        }
+        if (existingDegree.status == 'active') {
+            const updatedDegree = await prisma.carrera.update({
+                where: { id },
+                data: {
+                    status: 'inactive'
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    status: true,
+                }
+            });
+
+            await createAuditLog({
+                user: req.user,
+                action: 'CAMBIO ESTADO - Inactivado - Carrera',
+                description: updatedDegree.name,
+                resourceType: 'Carrera',
+                resourceId: updatedDegree.id
+            });
+
+            return res.status(200).json({
+                success: true,
+                message: 'Carrera actualizada',
+                carrera: updatedDegree,
+            });
+            
+        }
+        const updatedDegree = await prisma.carrera.update({
+            where: { id },
+            data: {
+                status: 'active'
+            },
+            select: {
+                id: true,
+                name: true,
+                status: true,
+            }
+        });
+
+        await createAuditLog({
+          user: req.user,
+          action: 'CAMBIO ESTADO - Activado - Carrera',
+          description: updatedDegree.name,
+          resourceType: 'Carrera',
+          resourceId: updatedDegree.id
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Carrera actualizada',
+            carrera: updatedDegree,
+        });
+
+    } catch (error) {
+        if (error.code === 'P2025') {
+            return res.status(404).json({ error: 'Carrera no encontrada' });
+        }
+        res.status(500).json({ error: error.message });
+    }
+}
+
 export default {
     addDegree,
     allDegree,
-    updateDegree
+    updateDegree,
+    updateStatusDegree
 }

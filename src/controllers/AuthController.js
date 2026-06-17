@@ -3,6 +3,7 @@ import bcryptjs from 'bcryptjs';
 import { createToken, tokenExpirationSeconds } from '../utils/token.js';
 import { validate } from '../utils/validations/validate.js';
 import { loginSchema, registerSchema } from '../utils/validations/schemas/authSchem.js';
+import { success } from 'zod';
 
 const salt = 10;
 
@@ -95,11 +96,18 @@ const login = async (req, res) => {
             },
         });
 
+        if(!user){
+            return res.status(404).json({
+                success: false,
+                error:'Usuario no registrado'
+            })
+        }
+
         if (user.status == 'inactive' ) {
             return res.status(401).json({ error: 'Usuario Inactivo' });
         }
         console.log(user.status)
-        if (!user) {
+        if (!user || user == null) {
             return res.status(401).json({ error: 'Credenciales invalidas' });
         }
 

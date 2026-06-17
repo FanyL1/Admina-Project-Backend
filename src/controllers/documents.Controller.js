@@ -11,10 +11,16 @@ export const getDocumentsByRequest = async (req, res) => {
       where: { request_id: requestId }
     });
 
+    // Convertir BigInt a Number para cada documento
+    const serializedDocuments = documents.map(doc => ({
+      ...doc,
+      size_bytes: doc.size_bytes ? Number(doc.size_bytes) : null
+    }));
+
     return res.json({
       success: true,
       message: "Documentos obtenidos exitosamente",
-      data: documents
+      data: serializedDocuments
     });
   } catch (error) {
     console.error('Error en getDocumentsByRequest:', error);
@@ -138,14 +144,21 @@ export const updateDocumentFile = async (req, res) => {
       data: {
         name_file: newFile.filename,
         router_file: `/uploads/documents/${newFile.filename}`,
-        size_byte: newFile.size
+        size_bytes: newFile.size
       }
     });
+
+     const documents = []
+     // Convertir BigInt a Number antes de enviar
+      documents.push({
+        ...updatedDocument,
+        size_bytes: updatedDocument.size_bytes ? Number(updatedDocument.size_bytes) : null
+      });
 
     return res.json({
       success: true,
       message: 'Documento actualizado exitosamente',
-      data: updatedDocument
+      data: documents
     });
 
   } catch (error) {

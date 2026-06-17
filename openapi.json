@@ -589,6 +589,51 @@
         }
       }
     },
+    "/degree/status/{id}": {
+      "patch": {
+        "summary": "Actualizar estado de la carrera (alterna entre Activo/Inactivo)",
+        "tags": ["Degree"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del Carrera",
+            "schema": { 
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Carrera no encontrado" },
+          "500": { "description": "Error interno del servidor" }
+        }
+      }
+    },
     "/users/update/Superusuario/{id}": {
       "patch": {
         "summary": "Actualizar usuario en modo Superusuario",
@@ -768,6 +813,51 @@
           "200": { "description": "Categoria actualizada exitosamente" },
           "400": { "description": "Datos inválidos" },
           "404": { "description": "Categoria no encontrada" }
+        }
+      }
+    },
+    "/categories/status/{id}": {
+      "patch": {
+        "summary": "Actualizar estado de categoria (alterna entre Activo/Inactivo)",
+        "tags": ["Categories"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del Categoria",
+            "schema": { 
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Categoria no encontrado" },
+          "500": { "description": "Error interno del servidor" }
         }
       }
     },
@@ -981,6 +1071,51 @@
           },
           "400": { "description": "Datos inválidos" },
           "404": { "description": "Trámite no encontrado" }
+        }
+      }
+    },
+    "/procedure-types/status/{id}": {
+      "patch": {
+        "summary": "Actualizar estado de tramites (alterna entre Activo/Inactivo)",
+        "tags": ["Procedure-types"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID del Tramite",
+            "schema": { 
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Tramite no encontrado" },
+          "500": { "description": "Error interno del servidor" }
         }
       }
     },

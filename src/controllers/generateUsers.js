@@ -30,7 +30,7 @@ const generarUsuarios = (cantidad) => {
       name: nombres[Math.floor(Math.random() * nombres.length)],
       lastname: apellidos[Math.floor(Math.random() * apellidos.length)],
       dni: String(Math.floor(10000000 + Math.random() * 90000000)),
-      email: `usuario${i}@test.com`, //sumarle la cantidad de usuarios añadidos en cada iteracion ej. `usuario${i+100}@test.com` - en la siguiente `usuario${i+200}@test.com`
+      email: `usuario${i+600}@test.com`, //sumarle la cantidad de usuarios añadidos en cada iteracion ej. `usuario${i+100}@test.com` - en la siguiente `usuario${i+200}@test.com`
       pass: "User-123" //NO CAMBIAR LA CLAVE, debe ser igual para todo los usuarios
     });
   }
@@ -81,7 +81,7 @@ const crearUsuarios = async (usuarios, delayMs = 100) => {
 };
 
 // Ejecutar
-const usuarios = generarUsuarios(100); //Numero de usuarios a generar por cada ejecucion
+const usuarios = generarUsuarios(600); //Numero de usuarios a generar por cada ejecucion
 fs.writeFileSync('usuarios.json', JSON.stringify(usuarios, null, 2));
 console.log('💾 Backup guardado en usuarios.json\n');
 

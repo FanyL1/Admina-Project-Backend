@@ -2,6 +2,8 @@ import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
 import { createAuditLog } from '../utils/auditLog.js';
+import { exit } from 'node:process';
+import { success } from 'zod';
 
 export const getCategories = async (req, res) => {
   try {
@@ -80,7 +82,68 @@ export const updateCategory = async (req, res) => {
     
      return res.json({
       success: true,
-      message: "Categoria creada exitosamente",
+      message: "Categoria actualizada exitosamente",
+      data: updatedCategory
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al actualizar la categoría' });
+  }
+};
+
+export const updateStatusCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existingCategory = await prisma.category.findFirst({
+      where:{ id}
+    })
+
+    if(!existingCategory){
+      return res.status(404).json({
+        success: false,
+        error: 'Categoria no encontrada',
+      })
+    }
+    if (existingCategory.status == 'active') {
+      const updatedCategory = await prisma.category.update({
+        where: { id: id },
+        data: { 
+          status: 'inactive'
+       },
+     }); 
+     
+      await createAuditLog({
+        user: req.user,
+        action: 'CAMBIO ESTADO - Inactivado - Categoria',
+        description: updatedCategory.name,
+        resourceType: 'Category',
+        resourceId: updatedCategory.id
+      });
+      return res.json({
+        success: true,
+        message: 'Carrera actualizada',
+        data: updatedCategory
+      })
+    }
+
+    const updatedCategory = await prisma.category.update({
+      where: { id: id },
+      data: { status: 'active' },
+    });
+
+    await createAuditLog({
+      user: req.user,
+      action: 'CAMBIO ESTADO - Activado - Categoria',
+      description: updatedCategory.name,
+      resourceType: 'Category',
+      resourceId: updatedCategory.id
+    });
+    
+     return res.json({
+      success: true,
+      message: "Categoria actualizada exitosamente",
       data: updatedCategory
     });
 
