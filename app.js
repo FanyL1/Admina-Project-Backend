@@ -28,6 +28,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+const documentsPath = path.resolve(process.cwd(), 'src', 'uploads', 'documents');
+app.use('/uploads/documents', express.static(documentsPath));
+
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
