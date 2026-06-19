@@ -39,7 +39,7 @@ export const getRequests = async (req, res) => {
   }
 };
 
-// Obtener todas las solicitudes que no tengan el estado Aprobado y Rechazado
+// Obtener todas las solicitudes por revisor
 export const getAdminRequests = async (req, res) => {
   try {
 
@@ -132,6 +132,7 @@ export const getRequestsByUser = async (req, res) => {
       include: {
         type_procedure: true,
         carrera: true,
+        user: true,      
       }
     });
 
@@ -297,7 +298,8 @@ export const createRequest = async (req, res) => {
 // Actualizar una solicitud
 export const AddObservationRequest = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id, revisorId } = req.params;
+
     const existingRequest = await prisma.request.findUnique({
       where: { id }
     });
@@ -318,11 +320,31 @@ export const AddObservationRequest = async (req, res) => {
     }
     const { observation, status } = validation.data;
 
+    
+    if (existingRequest.revisor_id == null) {
+      const updatedRequest = await prisma.request.update({
+        where: { id },
+        data: {
+          observation: observation,
+          status: status,
+          revisor_id: revisorId
+        }
+      });
+    }else{
+      const updatedRequest = await prisma.request.update({
+        where: { id },
+        data: {
+          observation: observation,
+          status: status,
+        }
+      });
+    }
     const updatedRequest = await prisma.request.update({
       where: { id },
       data: {
         observation: observation,
-        status: status
+        status: status,
+        revisor_id: revisorId
       }
     });
 

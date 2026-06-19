@@ -1268,7 +1268,7 @@
     },
     "/requests/admin/{revisorId}": {
       "get": {
-        "summary": "Obtener todos las solicitudes de trámite Activas (que no estan Aprobadads o Rechazadas)",
+        "summary": "Obtener todos las solicitudes de trámite",
         "tags": ["Request"],
         "parameters": [
           {
@@ -1393,6 +1393,75 @@
         }
       }
     },
+    "/requests/{id}/admin/{revisorId}":{
+      "patch": {
+        "summary": "Actualizar estado de la solicitud",
+        "tags": ["Request"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID de la solicitud"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "ID del usuario revisor"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["Enviado", "Revisando", "Pendiente","Observado", "Aprobado", "Rechazado"],
+                    "description": "Nuevo estado de la solicitud"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { 
+            "description": "Estado actualizado exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "status": { 
+                          "type": "string",
+                          "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Datos inválidos" },
+          "401": { "description": "No autorizado" },
+          "404": { "description": "Solicitud no encontrada" },
+          "500": { "description":"Error interno del servidor" }
+        }
+      }
+    },
     "/requests/{id}/status":{
       "patch": {
         "summary": "Actualizar estado de la solicitud",
@@ -1415,7 +1484,7 @@
                 "properties": {
                   "status": {
                     "type": "string",
-                    "enum": ["Enviado", "Revisando", "Pendiente", "Aprobado", "Rechazado"],
+                    "enum": ["Enviado", "Revisando", "Pendiente", "Observado","Aprobado", "Rechazado"],
                     "description": "Nuevo estado de la solicitud"
                   }
                 }

@@ -13,7 +13,7 @@ router.get('/admin/:revisorId', getAdminRequests, restrictTo('Administrativo','S
 router.get('/user/:userId', getRequestsByUser, restrictTo('Estudiante') ); 
 router.get('/:id', getOneRequest, restrictTo('Estudiante','Administrativo','Superusuario'));
 router.post('/', createRequest,  restrictTo('Administrativo','Superusuario'));
-router.patch('/:id', AddObservationRequest,  restrictTo('Administrativo','Superusuario'));
+router.patch('/:id/admin/:revisorId', AddObservationRequest,  restrictTo('Administrativo','Superusuario'));
 router.patch('/:id/status', updateRequestStatus,  restrictTo('Administrativo','Superusuario'));
 
 
