@@ -155,7 +155,7 @@ export const getRequestsByUser = async (req, res) => {
 export const createRequest = async (req, res) => {
  
   try {
-    let { user_id, createByname,createByDNI, type_id, carrera_id, observation } = req.body;
+    let { user_id, createByname,createByDNI, type_id, carrera_id, observation, additionalData } = req.body;
 
     if (!createByname || createByname === 'undefined' || createByname === 'null') {
       createByname = "No Aplica";
@@ -171,6 +171,7 @@ export const createRequest = async (req, res) => {
       carrera_id,
       observation,
       createByDNI,
+      additionalData: additionalData || null,
     };
 
     const validation = await validate(requestSchema, requestData);
@@ -237,20 +238,21 @@ export const createRequest = async (req, res) => {
     }
 
     // Crear la solicitud
-    const newRequest = await prisma.request.create({
-      data: {
-        user_id: requestData.user_id,
-        createByname: requestData.createByname,
-        createByDNI:requestData.createByDNI,
-        type_id: requestData.type_id,
-        carrera_id: requestData.carrera_id,
-        observation: requestData.observation || undefined,
-      },
-      include: {
-        user: {select: { id: true, name: true,  lastname: true,  email: true }},
-        carrera: { select: { id: true, name: true } }
-      }
-    });
+      const newRequest = await prisma.request.create({
+        data: {
+          user_id: requestData.user_id,
+          createByname: requestData.createByname,
+          createByDNI: requestData.createByDNI,
+          type_id: requestData.type_id,
+          carrera_id: requestData.carrera_id,
+          observation: requestData.observation || undefined,
+          additionalData: requestData.additionalData, 
+        },
+        include: {
+          user: { select: { id: true, name: true, lastname: true, email: true } },
+          carrera: { select: { id: true, name: true } }
+        }
+      });
 
     const responseData = {
       ...newRequest,

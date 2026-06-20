@@ -63,7 +63,7 @@ export const createProcedureType = async (req, res) => {
       });
     }
     const { name, requirements, category_id } = validation.data;
-
+    console.log(requirements)
     const existingName = await prisma.typeProcedure.findFirst({
       where:{ name }
     })
@@ -80,7 +80,11 @@ export const createProcedureType = async (req, res) => {
         name,
         requirements:{
           documents: requirements.documents || [],
-          promedio: requirements.promedio ?? 0 
+          promedio: requirements.promedio ?? 0 ,
+          UC: requirements.UC ?? undefined,
+          cohorte: requirements.cohorte ?? undefined,
+          liso: requirements.liso ?? null,
+          materia: requirements.materia || undefined
         },
         category_id
       

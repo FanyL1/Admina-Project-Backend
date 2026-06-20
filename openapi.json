@@ -1150,6 +1150,12 @@
                   "carrera_id": { 
                     "type": "string", 
                     "description": "ID de la carrera" 
+                  },
+                  "additionalData": {
+                    "type": "object",
+                    "nullable": true,
+                    "description": "Objeto JSON dinámico con los datos específicos del formulario según el tipo de trámite (ej. promedio, UC, cohorte).",
+                    "additionalProperties": true
                   }
                 }
               }

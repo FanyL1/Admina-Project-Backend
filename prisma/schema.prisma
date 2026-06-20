@@ -98,6 +98,7 @@ model Request {
   updated_at   DateTime @updatedAt @db.Timestamp(6)
   status       String   @default("Enviado") @db.VarChar
   revisor_id   String?  @db.Uuid
+  additionalData  Json?
 
   user     User    @relation("userRequests", fields: [user_id], references: [id])
   revisor  User?   @relation("userReviews",fields: [revisor_id], references: [id])

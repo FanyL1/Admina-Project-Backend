@@ -13,6 +13,10 @@ export const requestSchema = z.object({
   type_id: z.string().uuid("Debe ser un UUID valido"),
   carrera_id: z.string().uuid("Debe ser un UUID valido"),
   observation: z.string().max(500, "La observacion no puede superar los 500 caracteres").optional().nullable(),
+  additionalData: z.object({})
+  .catchall(z.any())
+  .nullable()
+  .optional()
 });
 
 export const observationSchema = z.object({
