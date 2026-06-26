@@ -98,8 +98,9 @@ export const updateUser = async (req, res) => {
                 details: validation.errors,
             });
         }
+
         const id = req.params.id || req.user?.id;
-        const { name, lastname, email, pass } = validation.data;
+        const { name, lastname, email,dni, pass } = validation.data;
 
         const existingUser = await prisma.user.findUnique({
             where: { id }
@@ -128,10 +129,11 @@ export const updateUser = async (req, res) => {
         }
 
         const updateData = {};
-        
-        if (name !== undefined) updateData.name = name;
-        if (lastname !== undefined) updateData.lastname = lastname;
-        if (email !== undefined) updateData.email = email; 
+
+        if (name !== undefined && name !== '') updateData.name = name;
+        if (lastname !== undefined && lastname !== '') updateData.lastname = lastname;
+        if (dni !== undefined && dni !== '') updateData.dni = dni;
+        if (email !== undefined && email !== '') updateData.email = email; 
         if (pass !== undefined && pass !== '') {
             updateData.pass = await bcrypt.hash(pass, 10);
         }
@@ -185,6 +187,7 @@ export const updateUser = async (req, res) => {
         });
     }
 };
+
 //Falta Actualizar usuario (solo Superusuario)
 export const updateBySuperUser = async (req, res) => {
     try {

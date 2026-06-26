@@ -63,7 +63,6 @@ export const createProcedureType = async (req, res) => {
       });
     }
     const { name, requirements, category_id } = validation.data;
-    console.log(requirements)
     const existingName = await prisma.typeProcedure.findFirst({
       where:{ name }
     })

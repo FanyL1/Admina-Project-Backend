@@ -18,6 +18,10 @@ export const updateUserSchema = z.object({
     .max(100, 'El email es demasiado largo')
     .toLowerCase()
     .optional(),
+  dni: z.string()
+    .max(8,"Cedula inválida")
+    .regex(/^\d+$/, "Solo se permiten números")
+    .optional(),
   pass: z.string()
     .max(50, 'La contraseña es demasiado larga')
     .regex(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).*$/, 'La contraseña debe incluir una mayúscula, un número y un caracter especial.')
@@ -48,9 +52,8 @@ export const updateUserAdminSchema = z.object({
     .regex(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).*$/, 'La contraseña debe incluir una mayúscula, un número y un caracter especial.')
     .optional(),
   dni: z.string()
-    .min(8, 'El DNI debe tener al menos 8 caracteres')
-    .max(15, 'El DNI no puede superar los 15 caracteres')
-    .regex(/^[0-9]+$/, 'El DNI solo puede contener números')
+    .max(8,"Cedula inválida")
+    .regex(/^\d+$/, "Solo se permiten números")
     .optional(),
   role: z.string()
     .uuid('ID de rol inválido')

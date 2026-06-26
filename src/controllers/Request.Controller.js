@@ -21,6 +21,15 @@ export const getRequests = async (req, res) => {
         },
         type_procedure: true,
         carrera: true,
+        revisor: {
+          select: {
+            id: true,
+            name: true,
+            lastname: true,
+            dni: true,
+            email: true
+          }
+        }
       },
     });
 

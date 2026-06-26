@@ -340,7 +340,7 @@
         }
       }
     },
-    "/users/{id}": {
+    "/users/update/{id}": {
       "get": {
         "summary": "Obtener un usuario por ID",
         "tags": ["Users"],
