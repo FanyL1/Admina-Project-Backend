@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import { validate } from '../utils/validations/validate.js';
 import { updateUserSchema, updateUserAdminSchema } from '../utils/validations/schemas/updateUserSchem.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
-import { createAuditLog, isPrivilegedRole } from '../utils/auditLog.js';
+import { createAuditLog, generatorDescription, isPrivilegedRole } from '../utils/auditLog.js';
 
 // Obtener todos los usuarios
 export const getAllUsers = async (req, res) => {
@@ -99,12 +99,27 @@ export const updateUser = async (req, res) => {
             });
         }
 
-        const id = req.params.id || req.user?.id;
+        const id = req.params.id;
         const { name, lastname, email,dni, pass } = validation.data;
 
         const existingUser = await prisma.user.findUnique({
-            where: { id }
-        });
+            where: { id: id },
+            select: {
+                id: true,
+                name: true,
+                lastname: true,
+                dni: true,
+                email: true,
+                status: true,
+                created_at: true,
+                role: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            }
+        })
 
         if (!existingUser) {
             return res.status(404).json({
@@ -113,27 +128,34 @@ export const updateUser = async (req, res) => {
             });
         }
 
-        if (email && email !== existingUser.email) {
-            const emailExists = await prisma.user.findFirst({
-                where: {
-                    email,
-                    NOT: { id }
-                }
+        const updateData = {};
+
+        if (name !== undefined && name !== '') updateData.name = name;
+        if (lastname !== undefined && lastname !== '') updateData.lastname = lastname;
+        if (dni !== undefined && dni !== '') {
+            const existingDniUser = await prisma.user.findFirst({
+                where: { dni: dni }
             });
-            if (emailExists) {
+            if (existingDniUser) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'El DNI ya está en uso'
+                });
+            }
+            updateData.dni = dni
+        }
+        if (email !== undefined && email !== '') {
+            const existingEmailUser = await prisma.user.findFirst({
+                where: { email: email }
+            });
+            if (existingEmailUser) {
                 return res.status(400).json({
                     success: false,
                     error: 'El email ya está en uso'
                 });
             }
+            updateData.email = email  
         }
-
-        const updateData = {};
-
-        if (name !== undefined && name !== '') updateData.name = name;
-        if (lastname !== undefined && lastname !== '') updateData.lastname = lastname;
-        if (dni !== undefined && dni !== '') updateData.dni = dni;
-        if (email !== undefined && email !== '') updateData.email = email; 
         if (pass !== undefined && pass !== '') {
             updateData.pass = await bcrypt.hash(pass, 10);
         }
@@ -154,6 +176,7 @@ export const updateUser = async (req, res) => {
                 lastname: true,
                 dni: true,
                 email: true,
+                status: true,
                 created_at: true,
                 role: {
                     select: {
@@ -165,10 +188,11 @@ export const updateUser = async (req, res) => {
         });
 
         if (isPrivilegedRole(req.user)) {
+         const detailsUpdate = generatorDescription(existingUser, updatedUser);
           await createAuditLog({
             user: req.user,
             action: 'MODIFICO Usuario',
-            description: `(id: ${updatedUser.id})`,
+            description: `Usuario actualizado. ${detailsUpdate}`,
             resourceType: 'User',
             resourceId: updatedUser.id
           });
@@ -204,7 +228,22 @@ export const updateBySuperUser = async (req, res) => {
 
         const { name, lastname, email, dni, role, pass, status } = validation.data;
         const existingUser = await prisma.user.findUnique({
-            where: { id }
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                lastname: true,
+                dni: true,
+                email: true,
+                status: true,
+                created_at: true,
+                role: {
+                    select: {   
+                        id: true,
+                        name: true
+                    }
+                }
+            }
         });
         if (!existingUser) {
             return res.status(404).json({
@@ -212,25 +251,28 @@ export const updateBySuperUser = async (req, res) => {
                 error: 'Usuario no encontrado'
             });
         }
-        if (email && email !== existingUser.email) {
-            const emailExists = await prisma.user.findFirst({
-                where: {
-                    email,
-                    NOT: { id }
-                }
-            });
-            if (emailExists) {
+
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (lastname !== undefined) updateData.lastname = lastname;
+        if (dni !== undefined && dni !== '') {
+            if (dni == existingUser.dni) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'El DNI ya está en uso'
+                });
+            }
+            updateData.dni = dni
+        }
+        if (email !== undefined && email !== '') {
+            if (email == existingUser.email) {
                 return res.status(400).json({
                     success: false,
                     error: 'El email ya está en uso'
                 });
             }
+            updateData.email = email  
         }
-        const updateData = {};
-        if (name !== undefined) updateData.name = name;
-        if (lastname !== undefined) updateData.lastname = lastname;
-        if (email !== undefined) updateData.email = email;
-        if (dni !== undefined) updateData.dni = dni;
         if (role !== undefined) updateData.rol_id = role;
         if (pass !== undefined && pass !== '') {
             updateData.pass = await bcrypt.hash(pass, 10);
@@ -261,11 +303,11 @@ export const updateBySuperUser = async (req, res) => {
                 }
             }
         });
-
+        const detailsUpdate = generatorDescription(existingUser, updatedUser);
         await createAuditLog({
           user: req.user,
           action: 'MODIFICO Usuario',
-          description: `(id: ${updatedUser.id})`,
+          description: `Tramite actualizado. ${detailsUpdate}`,
           resourceType: 'User',
           resourceId: updatedUser.id
         });
@@ -307,11 +349,11 @@ export const UpadateStatuseUser = async (req, res) => {
                     status: 'active'
                 }
             });
-
+            const detailsUpdate = generatorDescription(existingUser, reactivedUser);
             await createAuditLog({
               user: req.user,
               action: 'ACTIVO Usuario',
-              description: `(id: ${reactivedUser.id})`,
+              description: `Usuario actualizado. ${detailsUpdate}`,
               resourceType: 'User',
               resourceId: reactivedUser.id
             });
@@ -323,25 +365,25 @@ export const UpadateStatuseUser = async (req, res) => {
             });
         }
 
-        const deletedUser = await prisma.user.update({
+        const activedUser = await prisma.user.update({
             where: { id },
             data: {
                 status: 'inactive'
             }
         });
-
+        const detailsUpdate = generatorDescription(existingUser, activedUser);
         await createAuditLog({
           user: req.user,
           action: 'DESACTIVO Usuario',
-          description: `(id: ${deletedUser.id})`,
+          description: `Usuario actualizado. ${detailsUpdate}`,
           resourceType: 'User',
-          resourceId: deletedUser.id
+          resourceId: activedUser.id
         });
 
         res.status(200).json({
             success: true,
             message: 'Usuario desactivado exitosamente',
-            data: deletedUser
+            data: activedUser
         });
     } catch (error) {
         console.error('Error en deleteUser:', error);
@@ -366,7 +408,10 @@ export const UpadateRoleUser = async (req, res) => {
         }
         const {name} = validation.data
         const existingUser = await prisma.user.findFirst({
-            where: { id }
+            where: { id },
+            include: {
+                role: true 
+            }
         });
 
         if (!existingUser) {
@@ -377,7 +422,7 @@ export const UpadateRoleUser = async (req, res) => {
         }
 
         const searchRole = await prisma.role.findUnique({
-            where: { name : name } 
+            where: { name : name }
         });
 
         if (!searchRole) {
@@ -389,18 +434,16 @@ export const UpadateRoleUser = async (req, res) => {
 
         const updateRole = await prisma.user.update({
             where: { id },
-            data: {
-                rol_id: searchRole.id
-            },
+            data: { rol_id: searchRole.id},
             include: {
                 role: true 
             }
         });
-
+        const detailsUpdate = generatorDescription(existingUser, updateRole);
         await createAuditLog({
           user: req.user,
           action: 'CAMBIO ROL Usuario',
-          description: `(id: ${updateRole.id}) -> ${searchRole.name}`,
+          description: `Usuario actualizado. ${detailsUpdate}`,
           resourceType: 'User',
           resourceId: updateRole.id
         });

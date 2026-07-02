@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
-import { createAuditLog } from '../utils/auditLog.js';
+import { createAuditLog, generatorDescription } from '../utils/auditLog.js';
 
 // Este endpoint es para desarrollo no está disponible la 
 // opción de crear roles en el producto final
@@ -15,18 +15,26 @@ const createRole = async (req, res) => {
             });
         }
         const { name } = validation.data;
+        const existingRole = await prisma.role.findFirst({
+            data: { name },
+        });
+        if(existingRole) {
+            return res.status(400).json({ error: "Rol ya está registrado" });
+        }
+
         const role = await prisma.role.create({
             data: { name },
         });
 
-        await createAuditLog({
-          user: req.user,
-          action: 'CREO Rol',
-          description: role.name,
-          resourceType: 'Role',
-          resourceId: role.id
-        });
-
+        if (isPrivilegedRole(req.user)) {
+            await createAuditLog({ 
+            user: req.user,
+            action: 'CREO Rol',
+            description: `Se creo rol`,
+            resourceType: 'Role',
+            resourceId: role.id
+            });
+        }
         res.status(200).json({ message: 'Rol creado', role });
     } catch (error) {
         
@@ -60,7 +68,11 @@ const UpdateRole = async (req, res) => {
         const {name} = validation.data
 
         const searchRole = await prisma.role.findUnique({
-            where: { name : name } 
+            where: { name},
+             select: {
+                id: true,
+                name: true,
+            }
         });
 
         if (searchRole) {
@@ -72,19 +84,18 @@ const UpdateRole = async (req, res) => {
 
         const updateRole = await prisma.role.update({
             where: { id },
-            data: {
-                name,
-            },
+            data: {  name },
             select: {
                 id: true,
                 name: true,
             },
         });
 
+        const detailsUpdate = generatorDescription(searchRole, updateRole);
         await createAuditLog({
           user: req.user,
           action: 'MODIFICO Rol',
-          description: updateRole.name,
+          description: `Rol actualizado. ${detailsUpdate}`,
           resourceType: 'Role',
           resourceId: updateRole.id
         });

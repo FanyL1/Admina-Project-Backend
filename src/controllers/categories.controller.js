@@ -38,7 +38,7 @@ export const createCategory = async (req, res) => {
     await createAuditLog({
       user: req.user,
       action: 'CREO Categoría',
-      description: newCategory.name,
+      description: 'Se creo categoria',
       resourceType: 'Category',
       resourceId: newCategory.id
     });
@@ -66,16 +66,27 @@ export const updateCategory = async (req, res) => {
       });
     }
 
+    const existingCategory = await prisma.category.findFirst({
+      where:{id}
+    })
+
+    if (!existingCategory) {
+      return res.status(404).json({
+        success: false,
+        message: 'Categoria no encontrada'
+      })
+    }
     const { name } = validation.data;
     const updatedCategory = await prisma.category.update({
       where: { id: id },
-      data: { name },
+      data: { name }
     });
 
+    const detailsUpdate = generatorDescription(existingCategory, updatedCategory);
     await createAuditLog({
       user: req.user,
       action: 'MODIFICO Categoría',
-      description: updatedCategory.name,
+      description: `Categoria actualizado. ${detailsUpdate}`,
       resourceType: 'Category',
       resourceId: updatedCategory.id
     });
@@ -113,11 +124,12 @@ export const updateStatusCategory = async (req, res) => {
           status: 'inactive'
        },
      }); 
-     
+
+     const detailsUpdate = generatorDescription(existingCategory, updatedCategory);
       await createAuditLog({
         user: req.user,
-        action: 'CAMBIO ESTADO - Inactivado - Categoria',
-        description: updatedCategory.name,
+        action: 'Cambio Estado a Inactivo de Categoria',
+        description: `Categoria actualizado. ${detailsUpdate}`,
         resourceType: 'Category',
         resourceId: updatedCategory.id
       });
@@ -133,10 +145,11 @@ export const updateStatusCategory = async (req, res) => {
       data: { status: 'active' },
     });
 
+    const detailsUpdate = generatorDescription(existingCategory, updatedCategory);
     await createAuditLog({
       user: req.user,
-      action: 'CAMBIO ESTADO - Activado - Categoria',
-      description: updatedCategory.name,
+      action: 'Cambio Estado a Activo de Categoria',
+      description: `Categoria actualizado. ${detailsUpdate}`,
       resourceType: 'Category',
       resourceId: updatedCategory.id
     });

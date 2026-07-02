@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem, UpdateSchem } from '../utils/validations/schemas/onlyNameSchem.js';
-import { createAuditLog } from '../utils/auditLog.js';
+import { createAuditLog, generatorDescription } from '../utils/auditLog.js';
 import { success } from 'zod';
 
 // Crear carrera
@@ -36,7 +36,7 @@ const addDegree = async (req, res) => {
         await createAuditLog({
           user: req.user,
           action: 'CREO Carrera',
-          description: Degree.name,
+          description: `Se creo Carrera`,
           resourceType: 'Carrera',
           resourceId: Degree.id
         });
@@ -89,23 +89,30 @@ const updateDegree = async (req, res) => {
         const { id } = req.params;
         const { name} = validation.data;
 
+        const existingDegree = await prisma.carrera.findFirst({
+            where:{id}
+        })
+
+        if(!existingDegree){
+            return res.status(404).json({
+                success: false,
+                message: 'carrera no encontrada'
+            })
+        }
+
         const updateData = {};
         if (name !== undefined) updateData.name = name;
 
         const updatedDegree = await prisma.carrera.update({
             where: { id },
             data: updateData,
-            select: {
-                id: true,
-                name: true,
-                status: true,
-            }
         });
 
+        const detailsUpdate = generatorDescription(existingDegree, updatedDegree);
         await createAuditLog({
           user: req.user,
           action: 'MODIFICO Carrera',
-          description: updatedDegree.name,
+          description: `Carrera actualizado. ${detailsUpdate}`,
           resourceType: 'Carrera',
           resourceId: updatedDegree.id
         });
@@ -144,17 +151,13 @@ const updateStatusDegree = async (req, res) => {
                 data: {
                     status: 'inactive'
                 },
-                select: {
-                    id: true,
-                    name: true,
-                    status: true,
-                }
             });
 
+            const detailsUpdate = generatorDescription(existingDegree, updatedDegree);
             await createAuditLog({
                 user: req.user,
-                action: 'CAMBIO ESTADO - Inactivado - Carrera',
-                description: updatedDegree.name,
+                action: 'Cambio Estado a Inactivo de Carrera',
+                description: `Carrera actualizado. ${detailsUpdate}`,
                 resourceType: 'Carrera',
                 resourceId: updatedDegree.id
             });
@@ -171,17 +174,13 @@ const updateStatusDegree = async (req, res) => {
             data: {
                 status: 'active'
             },
-            select: {
-                id: true,
-                name: true,
-                status: true,
-            }
         });
 
+        const detailsUpdate = generatorDescription(existingDegree, updatedDegree);
         await createAuditLog({
           user: req.user,
-          action: 'CAMBIO ESTADO - Activado - Carrera',
-          description: updatedDegree.name,
+          action: 'Cambio Estado a Activo de Carrera',
+          description: `Carrera actualizado. ${detailsUpdate}`,
           resourceType: 'Carrera',
           resourceId: updatedDegree.id
         });

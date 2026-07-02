@@ -2,7 +2,7 @@ import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { procedureTypeSchema, updateProcedureTypeSchema } from '../utils/validations/schemas/procedureTypeSchem.js';
 import { success } from 'zod';
-import { createAuditLog } from '../utils/auditLog.js';
+import { createAuditLog, generatorDescription } from '../utils/auditLog.js';
 
 // Obtener todos los tipos de trámites
 export const getProcedureTypes = async (req, res) => {
@@ -94,7 +94,7 @@ export const createProcedureType = async (req, res) => {
     await createAuditLog({
       user: req.user,
       action: 'CREO Tramite',
-      description: newType.name,
+      description: 'Se creo Tramite',
       resourceType: 'Type',
       resourceId: newType.id
     });
@@ -127,7 +127,10 @@ export const updateProcedureType = async (req, res) => {
     }
 
     const existingType = await prisma.typeProcedure.findUnique({
-      where: { id }
+      where: { id },
+      include:{
+        category: true
+      }
     });
 
     if (!existingType) {
@@ -146,12 +149,16 @@ export const updateProcedureType = async (req, res) => {
         ...(category_id ? { category_id } : {}),
         ...(status ? { status } : {}),
       },
+      include:{
+        category: true
+      }
     });
 
+    const detailsUpdate = generatorDescription(existingType, updatedType);
     await createAuditLog({
       user: req.user,
       action: 'ACTUALIZO Tramite',
-      description: updatedType.name,
+      description: `Tramite actualizado. ${detailsUpdate}`,
       resourceType: 'Type',
       resourceId: updatedType.id
     });
@@ -193,13 +200,14 @@ export const updateStatusProcedureType = async (req, res) => {
        },
      }); 
      
-      await createAuditLog({
-        user: req.user,
-        action: 'CAMBIO ESTADO - Inactivado - Tramite',
-        description: updatedType.name,
-        resourceType: 'Type',
-        resourceId: updatedType.id
-      });
+    const detailsUpdate = generatorDescription(existingType, updatedType);
+    await createAuditLog({
+      user: req.user,
+      action: 'Cambio Estado a Inactivo de Tramite',
+      description: `Tramite actualizado. ${detailsUpdate}`,
+      resourceType: 'Type',
+      resourceId: updatedType.id
+    });
       return res.json({
         success: true,
         message: 'Tramite actualizada',
@@ -211,11 +219,11 @@ export const updateStatusProcedureType = async (req, res) => {
       where: { id: id },
       data: { status: 'active' },
     });
-
+    const detailsUpdate = generatorDescription(existingType, updatedType);
     await createAuditLog({
       user: req.user,
-      action: 'CAMBIO ESTADO - Activado - Tramite',
-      description: updatedType.name,
+      action: 'Cambio Estado a Activo de Tramite',
+      description: `Tramite actualizado. ${detailsUpdate}`,
       resourceType: 'Type',
       resourceId: updatedType.id
     });
