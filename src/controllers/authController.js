@@ -9,84 +9,68 @@ const salt = 10;
 
 const singUp = async (req, res) => {
     try {
-    // ... tu código de registro ...
-    console.log("Intentando crear usuario...");
-    const user = await prisma.user.create({ data: req.body });
-    return res.status(201).json(user);
-  } catch (error) {
-    // ESTO ES LO QUE NECESITAMOS:
-    console.error("--- ERROR CRÍTICO EN SIGNUP ---");
-    console.error(error.message); // El mensaje del error
-    console.error(error.stack);   // La línea exacta donde falla
-    
-    return res.status(500).json({ 
-        message: "Error en el servidor", 
-        details: error.message // Lo verás en la respuesta de red del navegador
-    });
-  }
-    // try {
-    //     //Validacion de campos con el esquema
-    //     const validation = await validate(registerSchema, req.body);        
-    //     if (!validation.success) {
-    //         return res.status(400).json({
-    //             error: 'Error de validación',
-    //             details: validation.errors,
-    //         });
-    //     }
+        //Validacion de campos con el esquema
+        const validation = await validate(registerSchema, req.body);        
+        if (!validation.success) {
+            return res.status(400).json({
+                error: 'Error de validación',
+                details: validation.errors,
+            });
+        }
         
         
-    //     const { name, lastname, dni, email, pass } = validation.data;
-    //     const hashPAssword = await bcryptjs.hash(pass, salt);
-    //     const defaultRole = await prisma.role.findUnique({
-    //         where: { name: 'Estudiante' }
-    //     });
-    //     const roleId = defaultRole['id'];
+        const { name, lastname, dni, email, pass } = validation.data;
+        const hashPAssword = await bcryptjs.hash(pass, salt);
+        const defaultRole = await prisma.role.findUnique({
+            where: { name: 'Estudiante' }
+        });
+        const roleId = defaultRole['id'];
         
 
-    //     const existingUser = await prisma.user.findUnique({
-    //         where: { email },
-    //         select: {
-    //             id: true,
-    //             email: true,
-    //             status: true
-    //         }
-    //     });
+        const existingUser = await prisma.user.findUnique({
+            where: { email },
+            select: {
+                id: true,
+                email: true,
+                status: true
+            }
+        });
         
-    //     if (existingUser) {
-    //         return res.status(400).json({
-    //             error: 'El email ya está registrado',
-    //         });
-    //     }
+        if (existingUser) {
+            return res.status(400).json({
+                error: 'El email ya está registrado',
+            });
+        }
 
-    //     const existingDNI = await prisma.user.findUnique({
-    //         where: { dni }
-    //     });
+        const existingDNI = await prisma.user.findUnique({
+            where: { dni }
+        });
         
-    //     if (existingDNI) {
-    //         return res.status(400).json({
-    //             error: 'Cedula ya está registrado',
-    //         });
-    //     }
+        if (existingDNI) {
+            return res.status(400).json({
+                error: 'Cedula ya está registrado',
+            });
+        }
         
-    //     const user = await prisma.user.create({
-    //         data: {
-    //             name,
-    //             lastname,
-    //             dni,
-    //             email,
-    //             pass: hashPAssword,
-    //             rol_id: roleId
-    //         }
-    //     });
-    //     return res.status(201).json({ 
-    //       message: "Usuario creado"
-    //     });
-    // } catch (error) {
-    //     if (error.code === 'P2002') {
-    //         return res.status(400).json({ error: "Usuario ya está registrado" });
-    //     }
-    //     res.status(500).json({ error: error.message });
-    // }
+        const user = await prisma.user.create({
+            data: {
+                name,
+                lastname,
+                dni,
+                email,
+                pass: hashPAssword,
+                rol_id: roleId
+            }
+        });
+        return res.status(201).json({ 
+          message: "Usuario creado"
+        });
+    } catch (error) {
+        if (error.code === 'P2002') {
+            return res.status(400).json({ error: "Usuario ya está registrado" });
+        }
+        res.status(500).json({ error: error.message });
+    }
 };
 
 const login = async (req, res) => {
