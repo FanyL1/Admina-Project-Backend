@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import dotenv from 'dotenv';
+
 //Para la documentacion
 import swaggerUi from 'swagger-ui-express';
 import OpenApiValidator from 'express-openapi-validator';
@@ -17,8 +17,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 
-
-dotenv.config();
 //Middlesware basicos
 
 app.use(cors({
@@ -35,8 +33,6 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-console.log("Ruta actual:", __dirname);
-console.log("Contenido de carpeta controllers:", fs.readdirSync(path.join(__dirname, '../controllers')));
 // Leer el archivo openapi.json
 const openApiPath = path.join(__dirname, 'openapi.json');
 const apiSpec = JSON.parse(fs.readFileSync(openApiPath, 'utf8'));
