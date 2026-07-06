@@ -35,7 +35,8 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
+console.log("Ruta actual:", __dirname);
+console.log("Contenido de carpeta controllers:", fs.readdirSync(path.join(__dirname, '../controllers')));
 // Leer el archivo openapi.json
 const openApiPath = path.join(__dirname, 'openapi.json');
 const apiSpec = JSON.parse(fs.readFileSync(openApiPath, 'utf8'));
