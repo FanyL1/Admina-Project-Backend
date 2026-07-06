@@ -42,8 +42,8 @@ yarn install
 4. Generar el cliente de Prisma y ejecutar migraciones (local/desarrollo):
 
 ```bash
-npx prisma generate
 npx prisma migrate dev --name init
+npx prisma generate
 # o para entornos de producción:
 npx prisma migrate deploy
 ```

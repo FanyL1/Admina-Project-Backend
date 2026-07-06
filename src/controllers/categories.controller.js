@@ -1,7 +1,7 @@
 import prisma from '../config/prisma.js';
 import { validate } from '../utils/validations/validate.js';
 import { onlyNameSchem } from '../utils/validations/schemas/onlyNameSchem.js';
-import { createAuditLog } from '../utils/auditLog.js';
+import { createAuditLog, generatorDescription } from '../utils/auditLog.js';
 import { exit } from 'node:process';
 import { success } from 'zod';
 
