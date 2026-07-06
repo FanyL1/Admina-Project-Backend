@@ -20,7 +20,7 @@ const app = express();
 //Middlesware basicos
 
 app.use(cors({
-  origin: ['https://admina-project-frontend.vercel.app/', 'http://localhost:3000'],
+  origin: 'https://admina-project-frontend.vercel.app',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH','OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
