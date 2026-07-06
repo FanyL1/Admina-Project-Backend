@@ -9,16 +9,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Admina-Project/Backend.git"
+    "url": "git+https://github.com/FanyL1/Admina-Project-Backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/Admina-Project/Backend/issues"
+    "url": "https://github.com/FanyL1/Admina-Project-Backend/issues"
   },
-  "homepage": "https://github.com/Admina-Project/Backend#readme",
+  "homepage": "https://github.com/FanyL1/Admina-Project-Backend#readme",
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
