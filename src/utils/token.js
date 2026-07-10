@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 
+//Dos horas
 export const tokenExpirationSeconds = 120 * 60;
 
 const base64UrlEncode = (data) =>{ 
