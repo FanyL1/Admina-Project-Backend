@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-export const tokenExpirationSeconds = 1440 * 60;
+export const tokenExpirationSeconds = 120 * 60;
 
 const base64UrlEncode = (data) =>{ 
     return Buffer
