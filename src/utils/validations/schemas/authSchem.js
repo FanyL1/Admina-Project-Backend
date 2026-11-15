@@ -20,6 +20,7 @@ export const registerSchema = z.object({
     .toLowerCase(),
   pass: z.string()
     .max(50, 'La contraseña es demasiado larga')
+    .min(6, 'La contraseña es demasiado corta')
     .regex(/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).*$/, 'La contraseña debe incluir una mayúscula, un número y un caracter especial.')
 })
 

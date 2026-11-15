@@ -158,6 +158,11 @@ export const updateUser = async (req, res) => {
         }
         if (pass !== undefined && pass !== '') {
             updateData.pass = await bcrypt.hash(pass, 10);
+        }else{
+            return res.status(400).json({
+                success: false,
+                error: 'La contraseña no puede estar vacía'
+            });
         }
 
         if (Object.keys(updateData).length === 0) {
@@ -341,6 +346,7 @@ export const UpadateStatuseUser = async (req, res) => {
                 error: 'Usuario no encontrado'
             });
         }
+
 
         if (existingUser.status === 'inactive') {
             const reactivedUser = await prisma.user.update({
