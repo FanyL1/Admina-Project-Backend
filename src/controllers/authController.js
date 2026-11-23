@@ -24,7 +24,12 @@ const singUp = async (req, res) => {
         const defaultRole = await prisma.role.findUnique({
             where: { name: 'Estudiante' }
         });
-        const roleId = defaultRole['id'];
+        if (!defaultRole) {
+            return res.status(500).json({
+                error: "Rol 'Estudiante' no configurado. Ejecuta npm run db:seed."
+            });
+        }
+        const roleId = defaultRole.id;
         
 
         const existingUser = await prisma.user.findUnique({
