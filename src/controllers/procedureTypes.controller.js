@@ -83,7 +83,8 @@ export const createProcedureType = async (req, res) => {
           UC: requirements.UC ?? undefined,
           cohorte: requirements.cohorte ?? undefined,
           liso: requirements.liso ?? null,
-          materia: requirements.materia || undefined
+          materia: requirements.materia || undefined,
+          tratamiento: requirements.tratamiento ?? undefined
         },
         category_id
       

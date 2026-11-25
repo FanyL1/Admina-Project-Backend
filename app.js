@@ -1,4 +1,5 @@
 //Para el server
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -20,13 +21,17 @@ const app = express();
 //Middlesware basicos
 
 app.use(cors({
-  origin: ' http://localhost:3000',
+  origin: 'http://localhost:3000',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH','OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-const documentsPath = path.resolve(process.cwd(), 'src', 'uploads', 'documents');
+// multer guarda en UPLOAD_PATH (por defecto ./uploads/documents en .env).
+// El middleware estático debe servir exactamente esa misma carpeta.
+const documentsPath = process.env.UPLOAD_PATH
+  ? path.resolve(process.env.UPLOAD_PATH)
+  : path.resolve(process.cwd(), 'src', 'uploads', 'documents');
 app.use('/uploads/documents', express.static(documentsPath));
 
 app.use(morgan('dev'));
